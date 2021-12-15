@@ -59,3 +59,26 @@
   }
 }
 
+#icon {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  z-index: 500;
+  opacity: 0;
+  transform: translateX(-50%);
+}
+
+#old {
+  position: absolute;
+  bottom: 15vh;
+  left: 50%;
+  z-index: 500;
+  transform: translateX(-50%);
+}
+
+#old button {
+  display: inline-block;
+  transform: scale(0);
+}
+
+

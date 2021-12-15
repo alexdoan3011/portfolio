@@ -9,7 +9,7 @@ declare var require: any;
 @Component({
   selector: 'app-greeting',
   templateUrl: './greeting.component.html',
-  styleUrls: ['./greeting.component.scss']
+  styleUrls: ['./greeting.component.scss'],
 })
 
 export class GreetingComponent implements AfterViewInit {
@@ -24,10 +24,18 @@ export class GreetingComponent implements AfterViewInit {
 
 
   @HostListener('mousewheel', ['$event'])
-  scroll() {
+  scroll(event?: WheelEvent) {
     if (!this.scrollAllowed) return;
-    this.hammer.destroy();
-    this.cleanUp();
+    if (event) {
+      if (event.deltaY > 0) {
+        this.hammer.destroy();
+        this.cleanUp();
+        return;
+      }
+    } else {
+      this.hammer.destroy();
+      this.cleanUp();
+    }
   }
 
   textTransformDuration = 500;

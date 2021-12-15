@@ -1,10 +1,21 @@
 <div #scroll id="scroll">
+  <div id="old">
+    <button routerLink="/old" class="btn btn-primary" id = "old-btn" aria-label="I'm still working ⌛ on my new site ☝&#10;Would you like to see my old site 👇 in the meantime? 🥺" data-balloon-pos="up" data-balloon-break>Go to old site</button>
+  </div>
+
+  <div #icon *ngIf="displaySwiper" id="icon">
+    <i class="fa fa-angle-up" style="font-size:10vh;color:white; display: block"></i>
+  </div>
   <div #wrapper id="wrapper" class="stop-scrolling">
     <div #nameContainer id="name-container"></div>
-    <app-greeting *ngIf="displayGreeting" id="greetingComponent" class="no-select" #greetingComponent
-                  (cleanedUp)="setNamePos($event); setUpDisplay()" (cleaningUp)="allowScrolling()"
-                  [style.height]="returnViewHeight()"></app-greeting>
-    <div #content id="content"> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer id lobortis sem, nec vestibulum
+
+    <div #greetingContainer>
+      <app-greeting *ngIf="displayGreeting" id="greetingComponent" class="no-select" #greetingComponent
+                    (cleanedUp)="setNamePos($event); setUpDisplay()" (cleaningUp)="allowScrolling()"
+                    [style.height]="returnViewHeight()"></app-greeting>
+    </div>
+    <div #content id="content"> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer id lobortis sem, nec
+      vestibulum
       mi. Morbi
       eget dui dignissim, imperdiet dui vel, iaculis metus. Cras sed ornare sapien, at imperdiet mauris. Cras arcu
       turpis, eleifend vitae scelerisque id, feugiat nec nunc. Vestibulum eget ex sapien. Nullam vulputate lectus sit

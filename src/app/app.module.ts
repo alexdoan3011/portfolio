@@ -8,6 +8,7 @@ import {ConfettiComponent} from './confetti/confetti.component';
 import {RouterModule} from "@angular/router";
 import {NotFoundComponent} from './not-found/not-found.component';
 import {HomeComponent} from './home/home.component';
+import {AppRoutingModule} from "./app-routing.module";
 
 @NgModule({
   declarations: [
@@ -19,8 +20,9 @@ import {HomeComponent} from './home/home.component';
     HomeComponent,
   ],
   imports: [
+    AppRoutingModule,
     BrowserModule,
-    RouterModule
+    RouterModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
