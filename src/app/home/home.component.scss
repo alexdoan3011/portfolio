@@ -1,0 +1,61 @@
+#background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #2b2b2b;
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
+  z-index: -1000;
+}
+
+#greetingComponent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+#wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+#content {
+  color: white;
+  margin-top: 25vh;
+}
+
+.name {
+  position: absolute;
+}
+
+#scroll {
+  height: 100%;
+  width: 100%;
+  z-index: -1000;
+  overflow-y: scroll;
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+#scroll::-webkit-scrollbar {
+  display: none;
+}
+
+#name-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transform: scale(0.5);
+}
+
+@media (orientation: portrait) {
+  #name-container {
+    transform: scale(1);
+  }
+}
+

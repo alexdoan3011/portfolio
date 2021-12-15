@@ -1,0 +1,59 @@
+$hello-size: 10vw;
+$and-width: 10vw;
+$wel-width: 70vw;
+#hello {
+  visibility: hidden;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  color: white;
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: $hello-size;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+#and {
+  position: absolute;
+  top: 30vh;
+  left: 50%;
+  transform: translateX(-50%) translateY(100vh);
+  width: $and-width;
+}
+
+#welcome {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: -100;
+  transform: scale(0);
+  fill: #fcedd8;
+  filter: drop-shadow(0 5px 0px #eb452b) drop-shadow(-10px 15px 0px rgba(0, 0, 0, 0.05));
+}
+
+#welcome svg {
+  position: absolute;
+  width: $wel-width;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+@media (orientation: portrait) {
+
+  #and {
+    width: $and-width * 2;
+  }
+
+  #hello {
+    font-size: $hello-size * 2;
+  }
+}
+
+#greetingWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
