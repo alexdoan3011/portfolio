@@ -23,7 +23,6 @@ export class IntroductionAnimateComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.svg.nativeElement.setAttribute('viewBox', '0 0 ' + Utils.viewWidth + ' 1000');
     window.onmousemove = async (e) => {
       this.mouseX = e.clientX;
       this.mouseY = e.clientY;
@@ -43,6 +42,7 @@ export class IntroductionAnimateComponent implements AfterViewInit {
       this.update();
       this.currentX += (this.newX - this.currentX) / 100;
       this.currentY += (this.newY - this.currentY) / 100;
+      this.svg.nativeElement.setAttribute('viewBox', '0 0 ' + Utils.viewWidth + ' 1000');
       this.path.nativeElement.setAttribute('d', 'M0,0 Q' + this.currentX + ',' + this.currentY + ' ' + Utils.viewWidth + ',0');
       this.animateLines();
     })
