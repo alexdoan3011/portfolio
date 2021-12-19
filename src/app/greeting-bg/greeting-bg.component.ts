@@ -215,7 +215,7 @@ export class GreetingBgComponent implements OnInit {
     this.animated.push(this.background.nativeElement);
     Anime({
       targets: this.background.nativeElement,
-      background: '#FFC0CB',
+      background: Utils.getColor('bgLightPink'),
       duration: 5000
     })
   }

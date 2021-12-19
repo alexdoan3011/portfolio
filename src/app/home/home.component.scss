@@ -2,19 +2,23 @@
   position: absolute;
   top: 0;
   left: 0;
-  background: #2b2b2b;
+  background: var(--bgDark);
   height: 100%;
   width: 100%;
   pointer-events: none;
   z-index: -1000;
 }
 
-#greetingComponent {
+#greetingContainer {
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 2000;
   width: 100%;
-  z-index: 1000;
+}
+
+#greetingComponent {
+  width: 100%;
 }
 
 #wrapper {
@@ -23,9 +27,9 @@
   overflow: hidden;
 }
 
-#content {
+#contentWrapper {
   color: white;
-  margin-top: 25vh;
+  margin-top: 30vh;
 }
 
 .name {
@@ -53,32 +57,152 @@
   transform: scale(0.5);
 }
 
-@media (orientation: portrait) {
-  #name-container {
-    transform: scale(1);
-  }
-}
-
 #icon {
   position: absolute;
-  bottom: 0;
-  left: 50%;
-  z-index: 500;
-  opacity: 0;
-  transform: translateX(-50%);
+  bottom: 100%;
+  z-index: 5000;
+  opacity: 1;
+  width: 100%;
+  display: block;
+  color: white;
 }
 
 #old {
   position: absolute;
-  bottom: 15vh;
-  left: 50%;
+  bottom: 5vh;
+  right: 10%;
   z-index: 500;
-  transform: translateX(-50%);
+  transform: translateX(50%);
 }
 
 #old button {
   display: inline-block;
   transform: scale(0);
+  border: none;
+  border-radius: 1000px;
+  color: white;
+  background-color: rgb(146, 55, 77);
+  width: 70px;
+  height: 70px;
+  //--balloon-color: white;
+  font-size: 2em;
+}
+
+//[aria-label][data-balloon-pos]:after { color : black; background: white; }
+
+#old button:hover {
+  background-color: rgb(166, 75, 97);
+}
+
+#introduction {
+  position: relative;
+  height: 30vh;
+}
+
+#introduction-text {
+  font-size: 2vw;
+  margin: 30px;
+  color: gray;
+  padding-left: 12vw;
+}
+
+#introduction-animate {
+  position: absolute;
+  top: 99%;
+  left: 0;
+  width: 100%;
+  z-index: 0;
+}
+
+#about-me-container {
+  padding-top: 10vh;
+  background: var(--bgYellow);
+  padding-bottom: 10vh;
+}
+
+#about-me {
+  margin: 20px;
+}
+
+#about-me-img-container {
+  width: 300px;
+  height: 300px;
+  filter: grayscale(1) brightness(0.8);
+  background-color: rgba(0, 0, 0, 0);
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: 0.5s;
+}
+
+#about-me-img-container:hover {
+  filter: grayscale(0)  brightness(1);
+  box-shadow: 0 5px 0 black, -10px 15px 0 rgba(0, 0, 0, 0.05);
+}
+
+#about-me-img-container:hover #about-me-img-bg {
+  opacity: 1;
+}
+
+#about-me-img-bg {
+  transition: 0.5s;
+  width: 300px;
+  opacity: 0;
+}
+
+#about-me-img {
+  transition: 0.5s;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 300px;
+  box-shadow: -10px 0 0 0 black;
+}
+
+
+#about-me-text {
+  mix-blend-mode: difference;
+  white-space: normal;
+  margin: 10px;
+}
+
+#about-me-text-container {
+  width: 500px;
+  color: white;
+  margin-left: 5vw;
+  background: white;
+  word-wrap: normal;
+  font-size: 1.2em;
+  border-radius: 10px;
+  box-shadow: 0 5px 0 var(--acPersianGreen), -10px 15px 0 rgba(0, 0, 0, 0.05);
+}
+
+
+@media (orientation: portrait) {
+  #icon {
+    font-size: 10vh;
+    opacity: 0;
+  }
+
+  #name-container {
+    transform: scale(1);
+  }
+
+  #about-me-text-container {
+    font-size: 1em;
+    width: auto;
+    margin: 50px 20px 50px 20px;
+  }
+
+  #introduction div {
+    font-size: 4.0vw;
+    margin: 30px;
+    padding: 0;
+  }
+
+  #old {
+    right: 20%;
+  }
 }
 
 

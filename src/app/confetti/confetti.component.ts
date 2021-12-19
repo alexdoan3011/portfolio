@@ -1,5 +1,6 @@
 import {Component, ElementRef, OnInit, AfterViewInit, ViewChild} from '@angular/core';
 import {Particle} from '../models/particle'
+import Utils from "../utils";
 
 @Component({
   selector: 'app-confetti',
@@ -20,8 +21,6 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
   private particles: Particle[] = [];
   private popForce = [20, 20];
   private popForceMobile = [7, 15];
-  private viewWidth = window.innerWidth;
-  private viewHeight = window.innerHeight;
   private sweep = false;
   setAttrs = (toSetAttrs: Element, attr_obj: { [key: string]: any }) => {
     for (const prop in attr_obj) {
@@ -37,15 +36,8 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    if (this.viewHeight > this.viewWidth) {
+    if (Utils.mobile) {
       this.popForce = this.popForceMobile;
-    }
-    window.onresize = () => {
-      this.viewWidth = window.innerWidth;
-      this.viewHeight = window.innerHeight;
-      if (this.viewHeight > this.viewWidth) {
-        this.popForce = this.popForceMobile;
-      }
     }
     // this.getFPS();
   }
@@ -79,8 +71,8 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
       const q = (p % 2 == 1 && p > 3) ? 2 : 1;
       const length = this.particles.push({
         id: 'particle-' + (this.currentAmount),
-        posX: left ? 0 : this.viewWidth,
-        posY: this.viewHeight,
+        posX: left ? 0 : Utils.viewWidth,
+        posY: Utils.viewHeight,
         p: p,
         q: q,
         radius: this.random30Percent(this.particleRadius) * (q == 2 ? 1.5 : 1),
@@ -108,25 +100,25 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
 
   async animateParticle(particle: Particle) {
     if (particle.deleted) return;
-    particle.animationID = window.requestAnimationFrame(() => {
-      if (particle.posY > this.viewHeight || particle.posX < 0 || particle.posX > this.viewWidth) {
-        if (this.currentDropAmount > 0 && !this.sweep) {
-          particle.posY = -100;
-          particle.posX = (Math.random() + Math.random()) / 2 * this.viewWidth;
-          particle.vY = 0;
-          particle.vX = 0;
-          particle.torque = Math.random() < 0.5 ? 1 : -1 * Math.random();
-          particle.resistance = this.resistance * (Math.random() * 10);
-          this.currentDropAmount--;
-        } else {
-          this.deleteParticle(particle);
-          return;
-        }
+    if (particle.posY > Utils.viewHeight || particle.posX < 0 || particle.posX > Utils.viewWidth) {
+      if (this.currentDropAmount > 0 && !this.sweep) {
+        particle.posY = -100;
+        particle.posX = (Math.random() + Math.random()) / 2 * Utils.viewWidth;
+        particle.vY = 0;
+        particle.vX = 0;
+        particle.torque = Math.random() < 0.5 ? 1 : -1 * Math.random();
+        particle.resistance = this.resistance * (Math.random() * 10);
+        this.currentDropAmount--;
+      } else {
+        await this.deleteParticle(particle);
+        return;
       }
+    }
+    particle.animationID = window.requestAnimationFrame(() => {
       particle.vY += this.gravity;
       particle.vY /= (particle.resistance + 1000) / 1000;
       particle.vX /= (particle.resistance + 1000) / 1000;
-      particle.vX +=  this.sweep ? 0.1 : 0;
+      particle.vX += this.sweep ? 0.1 : 0;
       particle.posX += particle.vX;
       particle.posY += particle.vY;
       particle.rotation += particle.torque;
@@ -187,7 +179,7 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
     return div;
   };
 
-  renderParticle(particle: Particle) {
+  async renderParticle(particle: Particle) {
     if (particle.div) return;
     particle.div = this.generatePoly(particle);
     particle.div.id = particle.id;
@@ -198,7 +190,7 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
 
   async updateParticleRender(particle: Particle) {
     if (!particle.div) return;
-    particle.div.style.transform = 'translate(' + particle.posX + 'px, ' + particle.posY + 'px) rotate(' + particle.rotation + 'deg)  scale(' + this.viewWidth * (this.viewHeight > this.viewWidth ? 2 : 1) / 1500 + ')';
+    particle.div.style.transform = 'translate(' + particle.posX + 'px, ' + particle.posY + 'px) rotate(' + particle.rotation + 'deg)  scale(' + Utils.viewWidth * (Utils.mobile ? 2 : 1) / 1500 + ')';
     particle.div.style.opacity = String(particle.opacity);
   }
 

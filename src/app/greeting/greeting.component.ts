@@ -75,7 +75,7 @@ export class GreetingComponent implements AfterViewInit {
       complete: () => {
         Anime({
           targets: this.welcome.nativeElement,
-          top: ['50%', '15%'],
+          top: ['50%', '25%'],
           left: ['50%', '50%'],
           scale: Utils.mobile ? 1 : 0.5,
           easing: 'easeInOutSine',

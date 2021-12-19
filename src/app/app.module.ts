@@ -9,6 +9,7 @@ import {RouterModule} from "@angular/router";
 import {NotFoundComponent} from './not-found/not-found.component';
 import {HomeComponent} from './home/home.component';
 import {AppRoutingModule} from "./app-routing.module";
+import { IntroductionAnimateComponent } from './introduction-animate/introduction-animate.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import {AppRoutingModule} from "./app-routing.module";
     NotFoundComponent,
     GreetingBgComponent,
     HomeComponent,
+    IntroductionAnimateComponent,
   ],
   imports: [
     AppRoutingModule,

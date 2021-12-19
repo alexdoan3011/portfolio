@@ -1,5 +1,5 @@
-import {Component, ViewEncapsulation, AfterViewInit} from '@angular/core';
-import Utils from "./utils";
+import {Component, ViewEncapsulation, AfterViewInit, OnInit} from '@angular/core';
+import Utils, {colors} from "./utils";
 
 
 @Component({
@@ -8,8 +8,15 @@ import Utils from "./utils";
   styleUrls: ['./app.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements OnInit, AfterViewInit {
   title = 'portfolio';
+
+
+  ngOnInit(): void {
+    Array.from(colors.entries()).forEach(([name, value]) => {
+      document.body.style.setProperty(`--${name}`, value);
+    })
+  }
 
   ngAfterViewInit(): void {
     window.onresize = () => Utils.updateViewSize();
