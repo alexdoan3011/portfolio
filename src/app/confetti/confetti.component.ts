@@ -1,6 +1,7 @@
-import {Component, ElementRef, OnInit, AfterViewInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnInit, AfterViewInit, ViewChild, Output, EventEmitter} from '@angular/core';
 import {Particle} from '../models/particle'
 import Utils from "../utils";
+import fastdom from "fastdom";
 
 @Component({
   selector: 'app-confetti',
@@ -16,12 +17,12 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
   private gravity = 0.005;
   private amount = 20;
   private currentAmount = this.amount;
-  private dropAmount = 100;
-  private currentDropAmount = this.dropAmount;
   private particles: Particle[] = [];
-  private popForce = [20, 20];
+  private popForce = [20, 30];
   private popForceMobile = [7, 15];
   private sweep = false;
+  private removed = 0;
+  @Output() cleanedUp: EventEmitter<any> = new EventEmitter();
   setAttrs = (toSetAttrs: Element, attr_obj: { [key: string]: any }) => {
     for (const prop in attr_obj) {
       toSetAttrs.setAttribute(prop, attr_obj[prop]);
@@ -70,7 +71,6 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
       const p = Math.floor(Math.random() * (this.maxPoints - 2) + 3);
       const q = (p % 2 == 1 && p > 3) ? 2 : 1;
       const length = this.particles.push({
-        id: 'particle-' + (this.currentAmount),
         posX: left ? 0 : Utils.viewWidth,
         posY: Utils.viewHeight,
         p: p,
@@ -95,22 +95,23 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
   }
 
   getRandomColor() {
-    return '#' + Math.floor(Math.random() * 16777215).toString(16);
+    return "hsl(" + 360 * Math.random() + ', 100%, ' +
+      (33 + 33 * Math.random()) + '%)'
   }
 
   async animateParticle(particle: Particle) {
     if (particle.deleted) return;
-    if (particle.posY > Utils.viewHeight || particle.posX < 0 || particle.posX > Utils.viewWidth) {
-      if (this.currentDropAmount > 0 && !this.sweep) {
+    if (particle.posY > Utils.viewHeight|| particle.posY < -100 || particle.posX < 0 || particle.posX > Utils.viewWidth) {
+      if (!this.sweep) {
         particle.posY = -100;
         particle.posX = (Math.random() + Math.random()) / 2 * Utils.viewWidth;
         particle.vY = 0;
         particle.vX = 0;
         particle.torque = Math.random() < 0.5 ? 1 : -1 * Math.random();
         particle.resistance = this.resistance * (Math.random() * 10);
-        this.currentDropAmount--;
+        (particle.div!.firstChild! as SVGElement).setAttribute('fill', this.getRandomColor())
       } else {
-        await this.deleteParticle(particle);
+        this.deleteParticle(particle);
         return;
       }
     }
@@ -118,10 +119,18 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
       particle.vY += this.gravity;
       particle.vY /= (particle.resistance + 1000) / 1000;
       particle.vX /= (particle.resistance + 1000) / 1000;
-      particle.vX += this.sweep ? 0.1 : 0;
+      particle.vX += this.sweep ? 0.05 : 0;
+      particle.opacity -= this.sweep ? 0.001 : 0;
       particle.posX += particle.vX;
       particle.posY += particle.vY;
       particle.rotation += particle.torque;
+      if (particle.rotation >= 360 || particle.rotation <= -360) {
+        particle.rotation = 0;
+      }
+      if (particle.opacity <= 0) {
+        this.deleteParticle(particle);
+        return;
+      }
       this.updateParticleRender(particle);
       this.animateParticle(particle);
     });
@@ -131,11 +140,14 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
     cancelAnimationFrame(particle.animationID);
     particle.div?.remove();
     particle.deleted = true;
+    this.removed++;
+    if (this.removed === this.amount) {
+      this.cleanedUp.emit();
+    }
   }
 
   generatePoly(particle: Particle) {
     this.currentAmount--;
-    let color = this.getRandomColor();
     const NS_URI = 'http://www.w3.org/2000/svg',
       svg = document.createElementNS(NS_URI, 'svg'),
       path = document.createElementNS(NS_URI, 'path'),
@@ -168,11 +180,11 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
     this.setAttrs(path, {
       'd': d_attr,
       'fill-rule': 'nonzero',
-      'fill': color,
     });
     let r2 = particle.radius * 2;
     let viewBox = -particle.radius + ' -' + particle.radius + ' ' + r2 + ' ' + r2;
     svg.setAttribute('viewBox', viewBox)
+    svg.setAttribute('fill', this.getRandomColor())
     svg.appendChild(path);
     div.style.position = 'absolute';
     div.appendChild(svg)
@@ -182,24 +194,25 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
   async renderParticle(particle: Particle) {
     if (particle.div) return;
     particle.div = this.generatePoly(particle);
-    particle.div.id = particle.id;
     particle.div.style.width = particle.radius * 2 + 'px';
     particle.div.style.transformOrigin = '50% 50%';
-    this.particleContainer?.nativeElement.appendChild(particle.div);
+    fastdom.mutate(() => {
+      this.particleContainer?.nativeElement.appendChild(particle.div);
+    })
   }
 
   async updateParticleRender(particle: Particle) {
-    if (!particle.div) return;
-    particle.div.style.transform = 'translate(' + particle.posX + 'px, ' + particle.posY + 'px) rotate(' + particle.rotation + 'deg)  scale(' + Utils.viewWidth * (Utils.mobile ? 2 : 1) / 1500 + ')';
-    particle.div.style.opacity = String(particle.opacity);
+    fastdom.mutate(() => {
+      if (!particle.div) return;
+      particle.div.style.transform = 'translate(' + particle.posX + 'px, ' + particle.posY + 'px) rotate(' + particle.rotation + 'deg)  scale(' + Utils.viewWidth * (Utils.mobile ? 2 : 1) / 1500 + ')';
+      particle.div.style.opacity = String(particle.opacity);
+    })
   }
 
   popConfetti() {
     for (let i = 0; i < this.particles.length; i++) {
-      if (this.particles[i].posY > 0) {
-        this.particles[i].opacity = Math.random() * 0.5 + 0.5
-        this.animateParticle(this.particles[i]);
-      }
+      this.particles[i].opacity = Math.random() * 0.5 + 0.5;
+      this.animateParticle(this.particles[i]);
     }
   }
 }

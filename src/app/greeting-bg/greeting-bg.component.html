@@ -42,5 +42,5 @@
       <img src="assets/svg/rainbow.svg" alt="">
     </div>
   </div>
-  <app-confetti #confettiComponent></app-confetti>
+  <app-confetti (cleanedUp)="cleanedUp.emit()"></app-confetti>
 </div>

@@ -101,7 +101,7 @@
       </g>
     </svg>
   </div>
-  <app-greeting-bg #greetingBgComponent></app-greeting-bg>
+  <app-greeting-bg (cleanedUp)="cleanedUp.emit()"></app-greeting-bg>
 </div>
 
 

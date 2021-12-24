@@ -3,6 +3,7 @@ import Anime from 'animejs';
 import {GreetingBgComponent} from 'src/app/greeting-bg/greeting-bg.component';
 import * as d3 from 'd3';
 import Utils from "../utils";
+import fastdom from "fastdom";
 
 declare var require: any;
 
@@ -14,12 +15,13 @@ declare var require: any;
 
 export class GreetingComponent implements AfterViewInit {
 
+  @ViewChild(GreetingBgComponent) greetingBgComponent!: GreetingBgComponent
   @ViewChild('hello') hello!: ElementRef;
   @ViewChild('and') and!: ElementRef;
   @ViewChild('wrapper') wrapper!: ElementRef;
   @ViewChild('welcome') welcome!: ElementRef;
-  @ViewChild('greetingBgComponent') greetingBgComponent!: GreetingBgComponent
-  @Output() cleanedUp: EventEmitter<HTMLElement> = new EventEmitter();
+  @Output() cleanedUp: EventEmitter<any> = new EventEmitter();
+  @Output() doneTransforming: EventEmitter<HTMLElement> = new EventEmitter();
   @Output() cleaningUp: EventEmitter<any> = new EventEmitter();
 
 
@@ -121,7 +123,7 @@ export class GreetingComponent implements AfterViewInit {
           return interpolator;
         }).end().then(() => {
         if (i == secondTextPath.length - 1) {
-          this.cleanedUp.emit(this.welcome.nativeElement);
+          this.doneTransforming.emit(this.welcome.nativeElement);
         }
       })
       Anime({
@@ -141,8 +143,8 @@ export class GreetingComponent implements AfterViewInit {
   idleAnimation(target: HTMLElement | HTMLElement[], duration?: number) {
     Anime({
       targets: [target],
-      translateX: '+=' + (Math.random() < 0.5 ? 1 : -1) * Utils.random50Percent(10),
-      translateY: '+=' + (Math.random() < 0.5 ? 1 : -1) * Utils.random50Percent(10),
+      translateX: '+=' + (Math.random() < 0.5 ? 1 : -1) * Utils.random30Percent(10),
+      translateY: '+=' + (Math.random() < 0.5 ? 1 : -1) * Utils.random30Percent(10),
       direction: 'alternate',
       duration: duration ? duration : 600,
       easing: 'easeInOutSine',
@@ -171,37 +173,39 @@ export class GreetingComponent implements AfterViewInit {
     });
   }
 
-  animateHello() {
+  async animateHello() {
     this.hello.nativeElement.style.visibility = 'visible';
-    this.hello.nativeElement.innerHTML = this.hello.nativeElement.textContent.replace(/\S/g, "<span>$&</span>");
-    const toAnimate = this.hello.nativeElement.getElementsByTagName('span');
-    this.animated.push(toAnimate);
-    let comma = document.getElementById('comma');
-    let helloContainer = document.getElementById('hello');
-    Anime({
-      targets: toAnimate,
-      opacity: [0, 1],
-      duration: 100,
-      delay: Anime.stagger(100, {start: 1000}),
-      complete: () => {
-        window.setTimeout(() => {
-          if (comma == null) return;
-          comma.style.visibility = 'visible';
-        }, 500)
-        this.animateAnd();
-        let originalPos = this.getTranslate(helloContainer)
-        this.animated.push(this.hello.nativeElement);
-        Anime({
-          targets: document.getElementById('hello'),
-          opacity: [1, 0],
-          translateX: ['-50%', '-50%'],
-          translateY: [originalPos[1], originalPos[1] - Utils.viewHeight],
-          easing: "easeOutBounce",
-          duration: 700,
-          delay: 1000
-        })
-      }
-    });
+    fastdom.mutate(() => {
+      this.hello.nativeElement.innerHTML = this.hello.nativeElement.textContent.replace(/\S/g, "<span>$&</span>");
+      const toAnimate = this.hello.nativeElement.getElementsByTagName('span');
+      this.animated.push(toAnimate);
+      let comma = document.getElementById('comma');
+      let helloContainer = document.getElementById('hello');
+      Anime({
+        targets: toAnimate,
+        opacity: [0, 1],
+        duration: 100,
+        delay: Anime.stagger(100, {start: 1000}),
+        complete: () => {
+          window.setTimeout(() => {
+            if (comma == null) return;
+            comma.style.visibility = 'visible';
+          }, 500)
+          this.animateAnd();
+          let originalPos = this.getTranslate(helloContainer)
+          this.animated.push(this.hello.nativeElement);
+          Anime({
+            targets: document.getElementById('hello'),
+            opacity: [1, 0],
+            translateX: ['-50%', '-50%'],
+            translateY: [originalPos[1], originalPos[1] - Utils.viewHeight],
+            easing: "easeOutBounce",
+            duration: 700,
+            delay: 1000
+          })
+        }
+      });
+    })
   }
 
   animateAnd() {

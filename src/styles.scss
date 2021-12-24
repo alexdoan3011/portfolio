@@ -7,9 +7,8 @@
                                   supported by Chrome, Edge, Opera and Firefox */
 }
 
-.stop-scrolling {
-  height: 100%;
-  overflow: hidden;
+.no-interact {
+  pointer-events: none;
 }
 
 @import "~@fortawesome/fontawesome-free/css/all.css";

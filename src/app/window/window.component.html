@@ -1,0 +1,22 @@
+<div id="window-container" class="d-flex justify-content-center">
+  <div id="window" class="d-flex justify-content-center" [ngClass]="{'flex-column' : isMobile()}">
+    <div
+      [ngClass]="{'d-flex' : isMobile(),  'justify-content-center' : isMobile()}">
+      <div class="no-select" id="window-img-container">
+        <div class="position-relative">
+          <img id="window-img-bg" src="./assets/img/aboutMeBg.png" alt="about me background">
+          <img id="window-img" src="./assets/img/aboutMe.png" alt="about me">
+        </div>
+      </div>
+    </div>
+    <div id="window-text-container">
+      <div id="window-header-bg">
+        <p id="window-header">{{title}}</p>
+      </div>
+      <div id="window-text">
+        <p *ngFor="let p of content">{{p}}</p>
+        <a href="mailto:alex.doan3011@gmail.com">alex.doan3011@gmail.com</a>
+      </div>
+    </div>
+  </div>
+</div>

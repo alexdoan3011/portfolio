@@ -29,14 +29,13 @@ $wel-width: 70vw;
   z-index: -100;
   transform: scale(0);
   fill: #fcedd8;
-}
-
-#welcome svg {
-  position: absolute;
-  width: $wel-width;
-  top: 50%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%);
+  & svg {
+    position: absolute;
+    width: $wel-width;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+  }
 }
 
 @media (orientation: portrait) {

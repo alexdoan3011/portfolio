@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import Anime from "animejs";
 import Utils from "../utils"
 import {ConfettiComponent} from "../confetti/confetti.component";
@@ -9,8 +9,9 @@ import {ConfettiComponent} from "../confetti/confetti.component";
   styleUrls: ['./greeting-bg.component.scss']
 })
 export class GreetingBgComponent implements OnInit {
+  @Output() cleanedUp: EventEmitter<any> = new EventEmitter();
+  @ViewChild(ConfettiComponent) confetti!: ConfettiComponent;
   @ViewChild('sun') sun!: ElementRef;
-  @ViewChild('confettiComponent') confetti!: ConfettiComponent;
   @ViewChild('sunray') sunray!: ElementRef;
   @ViewChild('cloud1') cloud1!: ElementRef;
   @ViewChild('cloud2') cloud2!: ElementRef;
@@ -25,16 +26,16 @@ export class GreetingBgComponent implements OnInit {
   @ViewChild('vfxRight') vfxRight!: ElementRef;
   @ViewChild('background') background!: ElementRef;
   @ViewChild('wrapper') wrapper!: ElementRef;
-
-
   smokeLeft: HTMLElement[] = [];
   smokeRight: HTMLElement[] = [];
   stopAnimating = false;
   animated: HTMLElement[] = [];
   sweep = false;
-  cleanUpTime = 500;
+  cleanUpTime = 1000;
+  private confettiPopped = false;
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit(): void {
   }
@@ -88,7 +89,7 @@ export class GreetingBgComponent implements OnInit {
       targets: this.sunray.nativeElement,
       scale: [1, 0],
       easing: 'linear',
-      duration: this.cleanUpTime,
+      duration: this.cleanUpTime / 2,
     })
     Anime({
       targets: [this.smokeLeft, this.smokeRight],
@@ -100,15 +101,15 @@ export class GreetingBgComponent implements OnInit {
       targets: this.background.nativeElement,
       translateY: '-=' + Utils.viewHeight,
       easing: 'easeOutSine',
-      duration: this.cleanUpTime,
+      duration: this.cleanUpTime / 2,
     })
   }
 
   startAnimations() {
-    this.animatePopper(this.popperLeft.nativeElement, true);
-    this.animatePopper(this.popperRight.nativeElement);
-    this.animateTrumpet(this.trumpetLeft.nativeElement, true);
-    this.animateTrumpet(this.trumpetRight.nativeElement);
+    this.animatePopper(true);
+    this.animatePopper();
+    this.animateTrumpet(true);
+    this.animateTrumpet()
     this.animateBackground();
     this.animateSun();
     this.animateCloud(this.cloud1.nativeElement);
@@ -181,29 +182,16 @@ export class GreetingBgComponent implements OnInit {
     }
   }
 
-  animateSmoke() {
+  animateSmoke(left?: boolean) {
     if (this.stopAnimating) return;
-    this.smokeLeft.forEach(x => {
+    (left ? this.smokeLeft : this.smokeRight).forEach(x => {
       Anime({
         targets: x,
-        translateX: Utils.random50Percent(100) + '%',
-        translateY: Utils.random50Percent(-150) + '%',
+        translateX: (left ? 1 : -1) * Utils.random30Percent(100) + '%',
+        translateY: Utils.random30Percent(-150) + '%',
         rotate: (Math.random() < 0.5 ? 1 : -1) * Math.random() * 360,
         scale: 3,
-        duration: 2000,
-        opacity: 0,
-        easing: "easeOutCirc"
-      });
-      this.animated.push(x);
-    });
-    this.smokeRight.forEach(x => {
-      Anime({
-        targets: x,
-        translateX: -Utils.random50Percent(100) + '%',
-        translateY: Utils.random50Percent(-150) + '%',
-        rotate: (Math.random() < 0.5 ? 1 : -1) * Math.random() * 360,
-        scale: 3,
-        duration: 2000,
+        duration: 3000,
         opacity: 0,
         easing: "easeOutCirc"
       });
@@ -215,7 +203,7 @@ export class GreetingBgComponent implements OnInit {
     this.animated.push(this.background.nativeElement);
     Anime({
       targets: this.background.nativeElement,
-      background: Utils.getColor('bgLightPink'),
+      background: Utils.getColor('myLightPink'),
       duration: 5000
     })
   }
@@ -238,8 +226,8 @@ export class GreetingBgComponent implements OnInit {
     if (this.stopAnimating) return;
     Anime({
       targets: [target],
-      translateX: '+=' + (Math.random() < 0.5 ? 1 : -1) * Utils.random50Percent(10),
-      translateY: '+=' + (Math.random() < 0.5 ? 1 : -1) * Utils.random50Percent(10),
+      translateX: '+=' + (Math.random() < 0.5 ? 1 : -1) * Utils.random30Percent(10),
+      translateY: '+=' + (Math.random() < 0.5 ? 1 : -1) * Utils.random30Percent(10),
       direction: 'alternate',
       duration: duration ? duration : 600,
       easing: 'easeInOutSine',
@@ -255,41 +243,46 @@ export class GreetingBgComponent implements OnInit {
   }
 
 
-  animatePopper(toAnimate: HTMLElement, left?: boolean) {
+  animatePopper(left?: boolean) {
+    const toAnimate = left ? this.popperLeft.nativeElement : this.popperRight.nativeElement;
     if (this.stopAnimating) return;
     this.animated.push(toAnimate);
     Anime({
       targets: toAnimate,
       translateX: (left ? 1 : -1) * 120 + '%',
-      translateY: '-120%'
-    });
-    window.setTimeout(() => {
-      if (this.stopAnimating) return;
-      this.confetti.popConfetti();
-      Anime({
-        targets: toAnimate,
-        translateX: (left ? 1 : -1) * 100 + '%',
-        translateY: '-100%',
-        duration: 300,
-        easing: 'easeOutBack',
-        complete: () => this.idleAnimation(toAnimate)
-      });
-      for (let i = 0; i < 3; i++) {
-        this.createSmoke(toAnimate, left);
+      translateY: '-120%',
+      duration: 1000,
+      complete: () => {
+        if (this.stopAnimating) return;
+        if (!this.confettiPopped) {
+          this.confettiPopped = true;
+          this.confetti.popConfetti();
+        }
+        Anime({
+          targets: toAnimate,
+          translateX: (left ? 1 : -1) * 100 + '%',
+          translateY: '-100%',
+          duration: 300,
+          easing: 'easeOutBack',
+          complete: () => this.idleAnimation(toAnimate)
+        });
+        for (let i = 0; i < 3; i++) {
+          this.createSmoke(toAnimate, left);
+        }
+        this.animateSmoke(left);
       }
-      this.animateSmoke();
-    }, 700)
+    });
   }
 
-  animateTrumpet(toAnimate: HTMLElement, left?: boolean) {
+  animateTrumpet(left?: boolean) {
     if (this.stopAnimating) return;
+    const toAnimate = left ? this.trumpetLeft.nativeElement : this.trumpetRight.nativeElement;
     this.animated.push(toAnimate);
     Anime({
       targets: toAnimate,
       translateX: (left ? 1 : -1) * 150 + '%',
-      translateY: '-150%'
-    });
-    Anime({
+      translateY: '-150%',
+      easing: 'easeOutSine',
       complete: () => {
         if (this.stopAnimating) return;
         Anime({
@@ -314,6 +307,6 @@ export class GreetingBgComponent implements OnInit {
           }
         });
       }
-    })
+    });
   }
 }

@@ -2,9 +2,10 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import Utils from "../utils";
 import Anime from 'animejs';
 import {GreetingComponent} from "../greeting/greeting.component";
-import {Content} from "../models/content";
 import {IntroductionAnimateComponent} from "../introduction-animate/introduction-animate.component";
+import {Content} from "../models/content";
 import contentJson from "../../assets/content.json";
+import {NgScrollbar} from "ngx-scrollbar";
 
 @Component({
   selector: 'app-home',
@@ -13,29 +14,39 @@ import contentJson from "../../assets/content.json";
 })
 export class HomeComponent implements OnInit {
 
-  @ViewChild('greetingComponent') greetingComponent!: GreetingComponent;
-  @ViewChild('introductionAnimateComponent') introductionAnimateComponent!: IntroductionAnimateComponent;
+  @ViewChild(GreetingComponent) greetingComponent!: GreetingComponent;
+  @ViewChild(IntroductionAnimateComponent) introductionAnimateComponent!: IntroductionAnimateComponent;
+  @ViewChild(NgScrollbar) scrollRef!: NgScrollbar;
   @ViewChild('nameContainer') nameContainer!: ElementRef;
   @ViewChild('greetingContainer') greetingContainer!: ElementRef;
   @ViewChild('wrapper') wrapper!: ElementRef;
   @ViewChild('scroll') scroll!: ElementRef;
   @ViewChild('content') content!: ElementRef;
   @ViewChild('icon') icon!: ElementRef;
-  displayGreeting = true;
+  displayGreeting = true; //TODO true
+  greetingInteract = this.displayGreeting;
   animated: HTMLElement[] = [];
-  displaySwiper = true;
-  contentJson: Content;
-
+  contentJson: Content = contentJson;
+  allowScroll = false;
+  showScroll = false;
 
   constructor() {
-    this.contentJson = contentJson;
   }
 
   ngOnInit(): void {
   }
 
   ngAfterViewInit(): void {
-    // this.wrapper.nativeElement.classList.remove('stop-scrolling');
+    if (!this.displayGreeting) {
+      this.allowScroll = true;
+    }
+    this.scrollRef.scrolled.subscribe(() => {
+      this.introductionAnimateComponent.updateTopOffset();
+    });
+  }
+
+  removeGreeting() {
+    this.displayGreeting = false;
   }
 
   isMobile() {
@@ -84,8 +95,13 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  getViewportHeight() {
+    return Utils.viewHeight + 'px';
+  }
+
   setNamePos(e: HTMLElement) {
     let div = e.cloneNode(true) as HTMLElement;
+    e.remove();
     div.style.transform = 'scale(1) translateX(-50%) translateY(-50%)';
     const top = Number(div.style.top.match(/[\d.]*/gm)![0]) * 2 * Utils.viewHeight / 100;
     div.style.top = '50%';
@@ -95,16 +111,18 @@ export class HomeComponent implements OnInit {
   }
 
   allowScrolling() {
-    this.wrapper.nativeElement.classList.remove('stop-scrolling');
+    this.allowScroll = true;
     this.animated.push(this.greetingContainer.nativeElement);
     this.animated.push(this.icon.nativeElement);
     this.hint();
   }
 
   setUpDisplay() {
+    this.showScroll = true;
     Anime.remove(this.animated);
-    this.displaySwiper = false;
-    this.displayGreeting = false;
+    this.introductionAnimateComponent.updateTopOffset();
+    this.introductionAnimateComponent.startAnimating();
+    this.greetingInteract = false;
     const btn = document.getElementById('old-btn')!
     Anime({
       targets: btn,

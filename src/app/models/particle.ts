@@ -1,5 +1,4 @@
 export interface Particle {
-  id: string,
   radius: number,
   p: number,
   q: number,
