@@ -50,14 +50,9 @@
 }
 
 ng-scrollbar {
-  --scrollbar-container-color: transparent;
-  --scrollbar-thumb-color: rgba(255, 255, 255, 0.2);
+  --scrollbar-thumb-color: rgba(255, 255, 255, 0);
   --scrollbar-thumb-hover-color: rgba(255, 255, 255, 0.8);
   --scrollbar-size: 20px;
-  &.hide {
-    --scrollbar-thumb-color: transparent;
-    --scrollbar-thumb-hover-color: transparent;
-  }
 }
 
 #name-container {

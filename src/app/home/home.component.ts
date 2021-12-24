@@ -28,7 +28,7 @@ export class HomeComponent implements OnInit {
   animated: HTMLElement[] = [];
   contentJson: Content = contentJson;
   allowScroll = false;
-  showScroll = false;
+  hideScrollTimer: any;
 
   constructor() {
   }
@@ -41,8 +41,45 @@ export class HomeComponent implements OnInit {
       this.allowScroll = true;
     }
     this.scrollRef.scrolled.subscribe(() => {
-      this.introductionAnimateComponent.updateTopOffset();
+      this.showScrollbar();
+      this.showIfHovered();
     });
+  }
+
+  showIfHovered() {
+    window.requestAnimationFrame(() => {
+      if (this.scrollRef.state.verticalHovered) {
+        this.showScrollbar();
+      }
+      this.showIfHovered();
+    })
+  }
+
+  showScrollbar() {
+    this.switchScrollbarVisibility(true);
+    if (this.hideScrollTimer) {
+      window.clearTimeout(this.hideScrollTimer);
+    }
+    this.hideScrollTimer = window.setTimeout(() => this.switchScrollbarVisibility(false), 2000);
+    this.introductionAnimateComponent.updateTopOffset();
+  }
+
+  switchScrollbarVisibility(show: boolean, currentVisibility?: number) {
+    if (!currentVisibility) {
+      currentVisibility = 0.2;
+    }
+    if (!show) {
+      if (currentVisibility! <= 0) {
+        return;
+      }
+      currentVisibility! -= 0.01;
+    }
+    window.requestAnimationFrame(() => {
+      this.scrollRef.nativeElement.style.setProperty('--scrollbar-thumb-color', 'rgba(255, 255, 255, ' + currentVisibility + ')');
+      if (!show) {
+        this.switchScrollbarVisibility(show, currentVisibility);
+      }
+    })
   }
 
   removeGreeting() {
@@ -118,7 +155,6 @@ export class HomeComponent implements OnInit {
   }
 
   setUpDisplay() {
-    this.showScroll = true;
     Anime.remove(this.animated);
     this.introductionAnimateComponent.updateTopOffset();
     this.introductionAnimateComponent.startAnimating();

@@ -11,7 +11,7 @@
       <i class="fa" [class.fa-angle-up]="isMobile()" [class.fa-angle-down]="!isMobile()"></i>
     </div>
   </div>
-  <ng-scrollbar [class]="showScroll?'':'hide'" [appearance] = "'compact'">
+  <ng-scrollbar [appearance] = "'compact'">
     <div #wrapper id="wrapper" [style.height]="allowScroll?'auto':getViewportHeight()">
       <div #nameContainer id="name-container"></div>
       <div #greetingContainer *ngIf="displayGreeting" [class.no-interact]="!greetingInteract" id="greetingContainer"
