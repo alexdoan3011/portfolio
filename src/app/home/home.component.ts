@@ -43,6 +43,8 @@ export class HomeComponent implements OnInit {
     this.scrollRef.scrolled.subscribe(() => {
       this.showScrollbar();
       this.showIfHovered();
+      if (this.introductionAnimateComponent)
+      this.introductionAnimateComponent.updateTopOffset();
     });
   }
 
@@ -61,7 +63,6 @@ export class HomeComponent implements OnInit {
       window.clearTimeout(this.hideScrollTimer);
     }
     this.hideScrollTimer = window.setTimeout(() => this.switchScrollbarVisibility(false), 2000);
-    this.introductionAnimateComponent.updateTopOffset();
   }
 
   switchScrollbarVisibility(show: boolean, currentVisibility?: number) {
@@ -156,8 +157,10 @@ export class HomeComponent implements OnInit {
 
   setUpDisplay() {
     Anime.remove(this.animated);
-    this.introductionAnimateComponent.updateTopOffset();
-    this.introductionAnimateComponent.startAnimating();
+    if (this.introductionAnimateComponent) {
+      this.introductionAnimateComponent.updateTopOffset();
+      this.introductionAnimateComponent.startAnimating();
+    }
     this.greetingInteract = false;
     const btn = document.getElementById('old-btn')!
     Anime({
