@@ -1,15 +1,147 @@
+:root {
+  --myDark: #2B2B2B;
+  --myPink: #92374D;
+  --mySemiPink: #C99BA7;
+  --myLightPink: #FFC0CB;
+  --myLightGray: #B4B4B4;
+  --myPurple: #774069;
+  --myDarkPurple: #4c3a69;
+  --myLightBlue: #4FACF7;
+  --myPersianGreen: #009B87;
+  --myYellow: #FFBD2E;
+  --myGreen: #3dce53;
+  --myRed: #FF6057;
+}
+
+.no-overscroll {
+  overscroll-behavior: none !important;
+}
+
+.no-scrollbar {
+  overflow: scroll;
+  -ms-overflow-style: none; /* IE and Edge */
+  &::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome, Safari and Opera */
+  }
+}
+
 .no-select {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
   -moz-user-select: none; /* Old versions of Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
-  user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome, Edge, Opera and Firefox */
+  user-select: none;
+  /* Non-prefixed version, currently
+                                   supported by Chrome, Edge, Opera and Firefox */
+}
+
+.no-gap {
+  margin: 0;
+  padding: 0;
 }
 
 .no-interact {
   pointer-events: none;
+  cursor: not-allowed;
 }
 
+.interact {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.pink-shadow {
+  filter: drop-shadow(0 5px 0 #eb452b) drop-shadow(-10px 15px 0px rgba(0, 0, 0, 0.05));
+}
+
+.black-shadow {
+  box-shadow: 0 5px 0 black, -10px 15px 0px rgba(0, 0, 0, 0.05);
+}
+
+.link {
+  cursor: pointer;
+  text-decoration: none;
+  position: relative;
+  color: white;
+  font-weight: 600;
+
+  &:hover {
+    color: var(--myLightPink);
+    transition: .3s;
+  }
+
+  &:visited {
+    color: white;
+  }
+
+  &:active {
+    color: var(--myPink);
+  }
+
+  &::after {
+    transform: scaleX(0);
+    background-color: var(--myPink);
+    z-index: -1;
+    height: 0.25em;
+    bottom: 0;
+    transform-origin: 0 50%;
+    transition: transform .3s cubic-bezier(.86, 0, .07, 1);
+  }
+
+  &::before {
+    background-color: var(--myLightGray);
+    z-index: -2;
+    height: 0.25em;
+    bottom: 0;
+  }
+
+  &:hover::after {
+    transform: scaleX(1);
+  }
+}
+
+.lk-light {
+  color: black;
+
+  &:hover {
+    color: var(--myPink);
+    transition: .3s;
+  }
+
+  &::after {
+    background-color: var(--myLightPink);
+  }
+
+  &::before {
+    background-color: var(--myLightGray);
+  }
+}
+
+.link::after, .link::before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: -1;
+}
+
+a.btn {
+  background-color: unset;
+  color: unset;
+  box-shadow: none;
+  font-weight: 300;
+
+  &:hover {
+    background-color: unset;
+    color: unset;
+  }
+}
+
+.gray-shadow {
+  box-shadow: 0 5px 0 darkgrey, -10px 15px 0px rgba(0, 0, 0, 0.05);
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Sacramento&display=swap');
 @import "~@fortawesome/fontawesome-free/css/all.css";
 @import "~balloon-css/src/balloon";

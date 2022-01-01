@@ -5,21 +5,20 @@ $sun-width: 10vw;
 $cloud-width: 20vw;
 $vfx-width: 0.5vw;
 
-#wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-#background {
+#bg {
   position: absolute;
   width: 100%;
   height: 100%;
   background: var(--myDark);
   z-index: -500;
+  :first-child {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: var(--myLightPink);
+    opacity: 0;
+  }
 }
-
 
 #cloud1 {
   opacity: 0.9;
@@ -54,7 +53,6 @@ $vfx-width: 0.5vw;
 
 #left-popper img {
   width: $popper-width;
-  -webkit-transform: scaleX(-1);
   transform: scaleX(-1);
 }
 
@@ -109,20 +107,28 @@ $vfx-width: 0.5vw;
   transform-origin: $trumpet-width*2.5 50%;
 }
 
-.vfx-container :first-child {
-  transform: rotate(-30deg);
-  transform-origin: -3vw 50%;
-}
-
-.vfx-container :nth-child(3) {
-  transform: rotate(30deg);
-  transform-origin: -3vw 50%;
+.vfx-container {
+  z-index: -100;
+  div:first-child {
+    opacity: 0;
+    transform: rotate(-30deg);
+    transform-origin: -3vw 50%;
+    + div {
+      opacity: 0;
+      transform-origin: -3vw 50%;
+      + div {
+        opacity: 0;
+        transform: rotate(30deg);
+        transform-origin: -3vw 50%;
+      }
+    }
+  }
 }
 
 .trumpet-vfx {
   position: absolute;
   background: white;
-  width: 0;
+  width: 5vw;
   height: $vfx-width;
   border-radius: math.div($vfx-width, 2);
 }
@@ -171,7 +177,7 @@ $vfx-width: 0.5vw;
   width: $sun-width;
 }
 
-#sunray {
+#sun-ray {
   width: fit-content;
   position: absolute;
   top: 50%;
@@ -180,7 +186,7 @@ $vfx-width: 0.5vw;
   transform: scale(0);
 }
 
-#sunray > img {
+#sun-ray > img {
   opacity: 0.75;
   position: absolute;
   top: 50%;

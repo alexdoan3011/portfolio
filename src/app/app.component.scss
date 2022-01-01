@@ -11,14 +11,3 @@ body, html {
 div {
   white-space: pre;
 }
-
-.pink-shadow {
-  filter: drop-shadow(0 5px 0 #eb452b) drop-shadow(-10px 15px 0px rgba(0, 0, 0, 0.05));
-}
-.black-shadow {
-  box-shadow: 0 5px 0 black, -10px 15px 0px rgba(0, 0, 0, 0.05);
-}
-
-.gray-shadow {
-  box-shadow: 0 5px 0 darkgrey, -10px 15px 0px rgba(0, 0, 0, 0.05);
-}

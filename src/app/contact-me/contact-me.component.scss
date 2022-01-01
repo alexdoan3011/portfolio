@@ -1,0 +1,104 @@
+#wrapper {
+  background: var(--myPink);
+  word-wrap: normal;
+  overflow: hidden;
+  position: relative;
+}
+
+#avatar-animate {
+  position: absolute;
+  top: 70%;
+  left: 30%;
+  transform: translateX(-50%) translateY(-50%);
+  filter: drop-shadow(-50px 50px 0 rgba(0, 0, 0, 0.05))
+}
+
+#avatar-bg {
+  width: 600px;
+  height: 600px;
+  background-color: var(--myLightGray);
+  position: absolute;
+  transform: translateX(-50%) translateY(-50%);
+  transform-origin: 50% 50%;
+  overflow: hidden;
+  border-radius: 10px;
+  z-index: 1;
+}
+
+#avatar-animate-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  transform: translateX(20%) translateY(100%);
+  transform-origin: 50% 100%;
+  pointer-events: none;
+}
+
+#contact-me-content-bg {
+  position: absolute;
+  top: 0;
+  right: 5%;
+  height: 100vh;
+  width: 90%;
+  background-image: linear-gradient(
+      175deg, var(--myDark) 80%, rgba(0, 0, 0, 0) 80.1%);
+  z-index: 0;
+}
+
+#contact-me-content {
+  position: absolute;
+  top: 100px;
+  right: 100px;
+  width: 40%;
+  word-break: break-word;
+  white-space: normal;
+}
+
+#contact-me-header {
+  color: var(--myYellow);
+  font-size: 5vw;
+  font-weight: 600;
+  font-family: 'Sacramento', cursive;
+}
+
+#contact-me-content > p {
+  font-size: 1vw;
+  font-weight: 300;
+  color: white;
+}
+
+#social > button {
+  margin-right: 10px;
+  width: 40px;
+  height: 40px;
+  transition: 0.2s;
+  &:hover {
+    background-color: var(--myPink)!important;
+  }
+}
+
+@media (orientation: portrait) {
+  #avatar-bg {
+    transform: scale(0.25) translateX(-200%) translateY(-200%);
+  }
+
+  #contact-me-header {
+    font-size: 13vw;
+  }
+
+  #contact-me-content > p {
+    font-size: 4vw;
+  }
+
+  #contact-me-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 70vw;
+    word-break: break-word;
+    white-space: normal;
+    transform: translateX(-50%) translateY(-50%);
+  }
+}

@@ -18,7 +18,7 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
   private amount = 20;
   private currentAmount = this.amount;
   private particles: Particle[] = [];
-  private popForce = [20, 30];
+  private popForce = [20, 20];
   private popForceMobile = [7, 15];
   private sweep = false;
   private removed = 0;
@@ -94,12 +94,7 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
     return randomizeThis * (100 + (Math.random() < 0.5 ? -1 : 1) * Math.random() * 30) / 100
   }
 
-  getRandomColor() {
-    return "hsl(" + 360 * Math.random() + ', 100%, ' +
-      (33 + 33 * Math.random()) + '%)'
-  }
-
-  async animateParticle(particle: Particle) {
+  animateParticle(particle: Particle) {
     if (particle.deleted) return;
     if (particle.posY > Utils.viewHeight|| particle.posY < -100 || particle.posX < 0 || particle.posX > Utils.viewWidth) {
       if (!this.sweep) {
@@ -109,7 +104,7 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
         particle.vX = 0;
         particle.torque = Math.random() < 0.5 ? 1 : -1 * Math.random();
         particle.resistance = this.resistance * (Math.random() * 10);
-        (particle.div!.firstChild! as SVGElement).setAttribute('fill', this.getRandomColor())
+        (particle.div!.firstChild! as SVGElement).setAttribute('fill', Utils.getRandomColor())
       } else {
         this.deleteParticle(particle);
         return;
@@ -136,7 +131,7 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
     });
   }
 
-  async deleteParticle(particle: Particle) {
+  deleteParticle(particle: Particle) {
     cancelAnimationFrame(particle.animationID);
     particle.div?.remove();
     particle.deleted = true;
@@ -184,14 +179,14 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
     let r2 = particle.radius * 2;
     let viewBox = -particle.radius + ' -' + particle.radius + ' ' + r2 + ' ' + r2;
     svg.setAttribute('viewBox', viewBox)
-    svg.setAttribute('fill', this.getRandomColor())
+    svg.setAttribute('fill', Utils.getRandomColor())
     svg.appendChild(path);
     div.style.position = 'absolute';
     div.appendChild(svg)
     return div;
   };
 
-  async renderParticle(particle: Particle) {
+  renderParticle(particle: Particle) {
     if (particle.div) return;
     particle.div = this.generatePoly(particle);
     particle.div.style.width = particle.radius * 2 + 'px';
@@ -201,7 +196,7 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
     })
   }
 
-  async updateParticleRender(particle: Particle) {
+  updateParticleRender(particle: Particle) {
     fastdom.mutate(() => {
       if (!particle.div) return;
       particle.div.style.transform = 'translate(' + particle.posX + 'px, ' + particle.posY + 'px) rotate(' + particle.rotation + 'deg)  scale(' + Utils.viewWidth * (Utils.mobile ? 2 : 1) / 1500 + ')';

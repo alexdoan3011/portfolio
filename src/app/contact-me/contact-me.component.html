@@ -1,0 +1,54 @@
+<div id="wrapper" [style.height]="getViewportHeight() + 'px'" [style.width]="getViewportWidth() + 'px'" (mouseenter)="setPauseAnimation(false)" (mouseleave)="setPauseAnimation(true)">
+  <div #avatarBg id="avatar-bg" class="rounded-circle"
+       [style.left]="(isMobile()?avatarPosXMobile:avatarPosX) + '%'"
+       [style.top]="(isMobile()?avatarPosYMobile:avatarPosY) + '%'">
+    <div #avatarAnimateContainer id="avatar-animate-container">
+      <app-avatar-animate
+        [shutMouth]="shutMouth"
+        [pauseAnimation] = "pauseAnimation"
+        id="avatar-animate"
+        [width]="450"
+        [left]="getViewportWidth()*(isMobile()?avatarPosXMobile:avatarPosX)/100"
+        [top]="getViewportHeight()*(isMobile()?avatarPosYMobile:avatarPosY)/100">
+      </app-avatar-animate>
+    </div>
+  </div>
+  <div id="contact-me-content-bg">
+    <div id="contact-me-content">
+      <div id="contact-me-header">Let's connect~</div>
+      <p>Fancy a chat? Got question? Wanna collaborate on a weird project? Hire me, maybe?
+      </p>
+      <p>
+        Drop me a mail at <a class="link" href="mailto:hi@coolalex.com"
+                              (mouseenter)="setMouth(true)"
+                              (mouseleave)="setMouth(false)">hi@coolalex.com</a> or come visit my social accounts!<br>
+      </p>
+      <div class="d-flex" id="social">
+        <button routerLink="/linkedIn"
+                class="btn border-0 d-flex flex-column justify-content-center align-items-center text-dark rounded bg-light"
+                (mouseenter)="setMouth(true)"
+                (mouseleave)="setMouth(false)">
+          <i class="fab fa-linkedin-in"></i>
+        </button>
+        <button routerLink="/discord"
+                class="btn border-0 d-flex flex-column justify-content-center align-items-center text-dark rounded bg-light"
+                (mouseenter)="setMouth(true)"
+                (mouseleave)="setMouth(false)">
+          <i class="fab fa-discord"></i>
+        </button>
+        <button routerLink="/facebook"
+                class="btn border-0 d-flex flex-column justify-content-center align-items-center text-dark rounded bg-light"
+                (mouseenter)="setMouth(true)"
+                (mouseleave)="setMouth(false)">
+          <i class="fab fa-facebook-f"></i>
+        </button>
+        <button routerLink="/github"
+                class="btn border-0 d-flex flex-column justify-content-center align-items-center text-dark rounded bg-light"
+                (mouseenter)="setMouth(true)"
+                (mouseleave)="setMouth(false)">
+          <i class="fab fa-github"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

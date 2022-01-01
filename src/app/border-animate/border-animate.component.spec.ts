@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { IntroductionAnimateComponent } from './introduction-animate.component';
+import { BorderAnimateComponent } from './border-animate.component';
 
 describe('IntroductionAnimateComponent', () => {
-  let component: IntroductionAnimateComponent;
-  let fixture: ComponentFixture<IntroductionAnimateComponent>;
+  let component: BorderAnimateComponent;
+  let fixture: ComponentFixture<BorderAnimateComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ IntroductionAnimateComponent ]
+      declarations: [ BorderAnimateComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(IntroductionAnimateComponent);
+    fixture = TestBed.createComponent(BorderAnimateComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

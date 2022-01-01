@@ -1,5 +1,5 @@
 import {Component, ViewEncapsulation, AfterViewInit, OnInit} from '@angular/core';
-import Utils, {colors} from "./utils";
+import Utils from "./utils";
 
 
 @Component({
@@ -13,12 +13,14 @@ export class AppComponent implements OnInit, AfterViewInit {
 
 
   ngOnInit(): void {
-    Array.from(colors.entries()).forEach(([name, value]) => {
-      document.body.style.setProperty(`--${name}`, value);
-    })
   }
 
   ngAfterViewInit(): void {
     window.onresize = () => Utils.updateViewSize();
+    window.onmousemove = (e) => Utils.updateMousePos(e);
+  }
+
+  getViewportHeight() {
+    return Utils.viewHeight;
   }
 }

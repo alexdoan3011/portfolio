@@ -128,7 +128,7 @@ export class GreetingComponent implements AfterViewInit {
       })
       Anime({
         targets: firstText[i].node(),
-        fill: i > 2 ? '#92374D' : '#fff',
+        fill: i > 2 ? '#92374D' : '#FFFFFF',
         easing: 'linear',
         duration: this.textTransformDuration
       })
@@ -184,13 +184,13 @@ export class GreetingComponent implements AfterViewInit {
       Anime({
         targets: toAnimate,
         opacity: [0, 1],
-        duration: 100,
+        duration: 50,
         delay: Anime.stagger(100, {start: 1000}),
         complete: () => {
           window.setTimeout(() => {
             if (comma == null) return;
             comma.style.visibility = 'visible';
-          }, 500)
+          }, 200)
           this.animateAnd();
           let originalPos = this.getTranslate(helloContainer)
           this.animated.push(this.hello.nativeElement);

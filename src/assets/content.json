@@ -1,7 +1,8 @@
 {
-  "introduction": "I'm a software developer and digital designer\nI enjoy doing weird projects and learning new stuff",
+  "introduction": "Software developer - Occasional digital designer\nProblem solver - Bug exterminator",
   "aboutMe": [
-    "Hi! My name is Van Nam \"Alex\" Doan. I'm currently based in Ontario, Canada.",
-    "My main focus is creating responsive, fast and smooth interactive digital experiences. I am looking for new opportunities. Don't hesitate to contact me at:"
+    "Hi! My name is Van Nam \"Alex\" Doan. I'm currently based in Ontario, Canada."],
+  "projects": [
+
   ]
 }

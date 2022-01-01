@@ -1,0 +1,72 @@
+#about-me-text {
+  white-space: normal;
+  margin: 10px;
+  color: black;
+}
+
+.about-me-img-container {
+  width: 300px;
+  height: 300px;
+  filter: grayscale(1) brightness(0.8);
+  background: var(--myLightGray);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 20px;
+  transition: .5s;
+
+  &:hover {
+    filter: grayscale(0) brightness(1);
+    box-shadow: 0 5px 0 var(--myDark), -10px 15px 0 rgba(0, 0, 0, 0.05);
+    transform: translateY(-10px);
+  }
+
+  &:active {
+    filter: contrast(80%) brightness(1.2);
+    box-shadow: none;
+    transform: translateY(0);
+    transition: 0s;
+  }
+
+  &:hover .about-me-img-bg {
+    opacity: 1;
+    transition: .25s;
+  }
+
+  &:hover .office {
+    opacity: 0;
+    transition: .25s;
+  }
+
+  > img {
+    transition: 1s;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 300px;
+    height: 300px;
+  }
+}
+
+.about-me-img-bg {
+  opacity: 0;
+}
+
+.triangle {
+  color: var(--myPink);
+  font-size: 0.75em;
+  margin: 5px;
+}
+
+.about-me-img {
+  width: 300px;
+}
+
+@media (orientation: portrait) {
+  .about-me-img-container :hover {
+    transform: none;
+  }
+
+  #about-me-text {
+    font-size: 0.75em;
+  }
+}

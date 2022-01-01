@@ -9,9 +9,14 @@ import {RouterModule} from "@angular/router";
 import {NotFoundComponent} from './not-found/not-found.component';
 import {HomeComponent} from './home/home.component';
 import {AppRoutingModule} from "./app-routing.module";
-import { IntroductionAnimateComponent } from './introduction-animate/introduction-animate.component';
+import { BorderAnimateComponent } from './border-animate/border-animate.component';
 import { WindowComponent } from './window/window.component';
 import { NgScrollbarModule } from 'ngx-scrollbar';
+import { ContactMeComponent } from './contact-me/contact-me.component';
+import { AvatarAnimateComponent } from './avatar-animate/avatar-animate.component';
+import { ProjectsComponent } from './projects/projects.component';
+import { AboutMeComponent } from './about-me/about-me.component';
+import { ResumeComponent } from './resume/resume.component';
 
 @NgModule({
   declarations: [
@@ -21,8 +26,13 @@ import { NgScrollbarModule } from 'ngx-scrollbar';
     NotFoundComponent,
     GreetingBgComponent,
     HomeComponent,
-    IntroductionAnimateComponent,
+    BorderAnimateComponent,
     WindowComponent,
+    ContactMeComponent,
+    AvatarAnimateComponent,
+    ProjectsComponent,
+    AboutMeComponent,
+    ResumeComponent,
   ],
   imports: [
     AppRoutingModule,

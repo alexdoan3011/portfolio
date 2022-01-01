@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Output, ViewChild} from '@angular/core';
 import Anime from "animejs";
 import Utils from "../utils"
 import {ConfettiComponent} from "../confetti/confetti.component";
@@ -8,11 +8,11 @@ import {ConfettiComponent} from "../confetti/confetti.component";
   templateUrl: './greeting-bg.component.html',
   styleUrls: ['./greeting-bg.component.scss']
 })
-export class GreetingBgComponent implements OnInit {
+export class GreetingBgComponent {
   @Output() cleanedUp: EventEmitter<any> = new EventEmitter();
   @ViewChild(ConfettiComponent) confetti!: ConfettiComponent;
   @ViewChild('sun') sun!: ElementRef;
-  @ViewChild('sunray') sunray!: ElementRef;
+  @ViewChild('sunRay') sunray!: ElementRef;
   @ViewChild('cloud1') cloud1!: ElementRef;
   @ViewChild('cloud2') cloud2!: ElementRef;
   @ViewChild('cloud3') cloud3!: ElementRef;
@@ -24,7 +24,7 @@ export class GreetingBgComponent implements OnInit {
   @ViewChild('trumpetRight') trumpetRight!: ElementRef;
   @ViewChild('vfxLeft') vfxLeft!: ElementRef;
   @ViewChild('vfxRight') vfxRight!: ElementRef;
-  @ViewChild('background') background!: ElementRef;
+  @ViewChild('bg') background!: ElementRef;
   @ViewChild('wrapper') wrapper!: ElementRef;
   smokeLeft: HTMLElement[] = [];
   smokeRight: HTMLElement[] = [];
@@ -35,9 +35,6 @@ export class GreetingBgComponent implements OnInit {
   private confettiPopped = false;
 
   constructor() {
-  }
-
-  ngOnInit(): void {
   }
 
   stopAnimations() {
@@ -170,7 +167,7 @@ export class GreetingBgComponent implements OnInit {
     img.style.position = 'absolute';
     img.style.transform = 'scale(1)'
     img.width = Utils.viewWidth / 20;
-    img.style.bottom = '5%';
+    img.style.bottom = '10%';
     img.style.zIndex = '-50'
     this.wrapper.nativeElement.appendChild(img);
     if (left) {
@@ -200,10 +197,10 @@ export class GreetingBgComponent implements OnInit {
   }
 
   animateBackground() {
-    this.animated.push(this.background.nativeElement);
+    this.animated.push(this.background.nativeElement.childNodes);
     Anime({
-      targets: this.background.nativeElement,
-      background: Utils.getColor('myLightPink'),
+      targets: this.background.nativeElement.childNodes,
+      opacity: 1,
       duration: 5000
     })
   }
@@ -278,6 +275,11 @@ export class GreetingBgComponent implements OnInit {
     if (this.stopAnimating) return;
     const toAnimate = left ? this.trumpetLeft.nativeElement : this.trumpetRight.nativeElement;
     this.animated.push(toAnimate);
+    const VFXs = (left ? this.vfxLeft : this.vfxRight).nativeElement.childNodes;
+    this.animated.push(VFXs);
+    const VFXsWithTransform = (Array.from(VFXs)).map((el: any, index) => {
+      return {vfx: el, rotate: -30 + index * 30}
+    })
     Anime({
       targets: toAnimate,
       translateX: (left ? 1 : -1) * 150 + '%',
@@ -294,15 +296,17 @@ export class GreetingBgComponent implements OnInit {
           loopBegin: (anim) => {
             if (this.stopAnimating) return;
             if (anim.progress < 50) {
-              let VFXs = (left ? this.vfxLeft : this.vfxRight).nativeElement.childNodes
-              this.animated.push(VFXs);
-              Anime({
-                targets: VFXs,
-                width: Utils.viewWidth / 20,
-                duration: 100,
-                direction: "alternate",
-                easing: "linear"
-              });
+              VFXsWithTransform.forEach((vfx) => {
+                Anime({
+                  targets: vfx.vfx,
+                  rotate: [vfx.rotate, vfx.rotate],
+                  opacity: [0, 1],
+                  scaleX: [0, 1],
+                  duration: 100,
+                  direction: "alternate",
+                  easing: "linear"
+                });
+              })
             }
           }
         });

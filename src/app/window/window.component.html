@@ -1,22 +1,37 @@
-<div id="window-container" class="d-flex justify-content-center">
-  <div id="window" class="d-flex justify-content-center" [ngClass]="{'flex-column' : isMobile()}">
-    <div
-      [ngClass]="{'d-flex' : isMobile(),  'justify-content-center' : isMobile()}">
-      <div class="no-select" id="window-img-container">
-        <div class="position-relative">
-          <img id="window-img-bg" src="./assets/img/aboutMeBg.png" alt="about me background">
-          <img id="window-img" src="./assets/img/aboutMe.png" alt="about me">
-        </div>
+<div class="blocker" style="cursor: move" *ngIf="dragging&&!touched" (mousemove)="editPosition($event)"
+     (mouseleave)="editPosition($event)" (window:mouseup)="stopEditing()"></div>
+<div class="blocker"
+     [style.cursor]="resizingX?(resizingY?(resizeLeft?'nesw-resize':'nwse-resize'):'ew-resize'):'ns-resize'"
+     *ngIf="resizingX||resizingY"
+     (mousemove)="editSize($event)" (mouseleave)="editSize($event)" (window:mouseup)="stopEditing()"></div>
+<div #window id="window" [class]="'d-flex justify-content-center flex-column' + (maximized?' no-overscroll no-scrollbar':'')"
+     [style.touch-action]="maximized?'none':'auto'"
+     [style.transform]="'translateX('+ location.x +'px) translateY('+ location.y +'px)'"
+     [style.width]="size.x+'px'" [style.height]="size.y+'px'"
+     [style.min-width]="minSize.x" [style.min-height]="minSize.y">
+  <div *ngIf="opened" class="d-flex flex-column" id="window-bg"
+       [style.border-radius]="roundedBottom?'15px 15px 10px 10px':'15px 15px 0 0'"
+       [style.background-color]="bg"
+       [style.box-shadow]="shadow?'0 5px 0 ' + shadowColor + ', -10px 15px 0 rgba(0, 0, 0, 0.05)':'none'">
+    <div class="d-flex justify-content-between align-items-center w-100" id="window-header-bg"
+         [style.background-color]="color" (mousedown)="startEditing($event)" (touchstart)="startEditing($event)"
+         (touchmove)="editPosition($event)">
+      <p id="window-header" [style.color]="whiteText?'white':'black'">{{title}}</p>
+      <div id="buttons" class="d-flex flex-row align-items-center m-2">
+        <div class="window-button rounded-circle m-1 maximize" (touchstart)="maximizeMinimize(false, $event)"
+             (mousedown)="maximizeMinimize(false, $event)"></div>
+        <div class="window-button rounded-circle m-1 close" (touchstart)="close($event)" (mousedown)="close($event)"></div>
       </div>
     </div>
-    <div id="window-text-container">
-      <div id="window-header-bg">
-        <p id="window-header">{{title}}</p>
-      </div>
-      <div id="window-text">
-        <p *ngFor="let p of content">{{p}}</p>
-        <a href="mailto:alex.doan3011@gmail.com">alex.doan3011@gmail.com</a>
-      </div>
+    <div class="position-relative w-100 h-100">
+      <ng-scrollbar>
+        <ng-content></ng-content>
+      </ng-scrollbar>
+      <div class="resize-x" id="resize-x-left" (mousedown)="startEditing($event, 'lx')"></div>
+      <div class="resize-xy" id="resize-xy-left" (mousedown)="startEditing($event, 'lxy')"></div>
+      <div id="resize-y" (mousedown)="startEditing($event,  'y')"></div>
+      <div class="resize-x" id="resize-x-right" (mousedown)="startEditing($event, 'rx')"></div>
+      <div class="resize-xy" id="resize-xy-right" (mousedown)="startEditing($event, 'rxy')"></div>
     </div>
   </div>
 </div>
