@@ -1,2 +1,92 @@
-<div id="resume-content"></div>
+<div #resumeContent id="resume-content" class="d-flex d-block overflow-hidden p-2 w-100 h-100" [ngClass]="vertical?('flex-column'):('flex-row')">
+  <div [class.equal-width]="!vertical">
+    <h2>EDUCATION</h2>
+    <div class="mx-4">
+      <div>
+        <div class="item-header">ADVANCED DIPLOMA IN COMPUTER SCIENCE</div>
+        <div class="item-content">
+          <p><span class="date">09/2018 - 12/2021</span><br><i>Algonquin College</i></p>
+          <p>Graduated with honours<br>GPA: 4.0</p>
+        </div>
+      </div>
+      <div>
+        <div class="item-header">BACHELOR OF ENGINEERING</div>
+        <div class="item-content">
+          <p><span class="date">09/2012 - 10/2016</span><br><i>Hanoi University of Mining & Geology</i></p>
+        </div>
+      </div>
+    </div>
+    <h2>PROFESSIONAL SKILLS</h2>
+    <div class="mx-4">
+      <div>
+        <div class="item-header">LANGUAGES</div>
+        <div class="item-content">
+          <p>Java<br>C/C++/C#<br>HTML5/CSS<br>PHP<br>JavaScript<br>TypeScript<br>
+            jQuery</p>
+        </div>
+      </div>
+      <div>
+        <div class="item-header">TECHNOLOGIES</div>
+        <div class="item-content">
+          <p>• Front-End and Back-End Developing technologies (HTML5/CSS, React,
+            jQuery, AJAX, MySQL, MongoDB, ServiceNow, Angular, ASP.NET, Azure),
+            experience in website management and full-stack development<br>
+            • Familiarity with Linux OS, BASH scripting, partitioning & networking
+            concepts. Learned and practiced programming RTOS such as QNX<br>
+            • Skills in UI/UX design (previously worked as a graphic designer, software
+            experience includes Adobe Photoshop and Illustrator). Familiar with UI/UX
+            design principles and modern aesthetic<br>
+            • Strong competency in Java, JavaScript, C/C++, C#. Fluency in common
+            development tools and IDEs, version control tools such as Git</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div [class.equal-width]="!vertical">
+    <h2>PROFESSIONAL EXPERIENCE</h2>
+    <div class="mx-4">
+      <div>
+        <div class="item-header">PROJECT LEADER</div>
+        <div class="item-content">
+          <p><span class="date">01/2021 - 12/2021</span><br><i>Algonquin College</i></p>
+          <p>Leading the feature enrichment project of TearDownBay.com<br>
+            1. Coordinated project work with Agile methodology:<br>
+            • Maintain team dynamics, manage client expectations<br>
+            • Delegate tasks and keep track of project requirements and progress<br>
+            2. Participate in delivering project outcomes with coding contributions:<br>
+            • Added dynamic categories functionality<br>
+            • Added dynamic filter functionality<br>
+            • Added Modify Report functionality<br>
+            • Added Create Report functionality</p>
+        </div>
+      </div>
+      <div>
+        <div class="item-header">CO-OP JUNIOR DEVELOPER</div>
+        <div class="item-content">
+          <p><span class="date">01/2020 - 08/2020</span><br><i>Payments Canada</i></p>
+          <p>1. Learning about Service Management process and taking over the production of Standard Operating Procedures
+            (SOPs) for each process<br>
+            2. Review the Service Management Process Documents to learn the Payments Canada ITIL-based processes and
+            update the documents<br>
+            3. Assist the Product team with activities related to the ServiceNow tool<br>
+            4. Become an active team member by participating in team activities and contributing to:<br>
+            • Team meetings<br>
+            • Planning of Communications/ training of processes<br>
+            • Reviewing work plans<br>
+            5. Working with Asset Manager to perform inventory of technology equipment<br>
+            6. Testing processes in ServiceNow tool using Test Plans</p>
+        </div>
+      </div>
+      <div>
+        <div class="item-header">WEBSITE ADMINISTRATOR</div>
+        <div class="item-content">
+          <p><span class="date">06/2016 - 08/2018</span><br><i>ThietBi247.vn</i></p>
+          <p>• Designed the visual of the website during its conception<br>
+            • Maintained database (product pages, descriptions, images etc.)<br>
+            • Search engine optimization, conducted promotions</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 

@@ -1,4 +1,11 @@
-import {Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+} from '@angular/core';
 import Utils from "../utils";
 import Anime from 'animejs';
 import {BorderAnimateComponent} from "../border-animate/border-animate.component";
@@ -8,6 +15,7 @@ import {NgScrollbar} from "ngx-scrollbar";
 import {ContactMeComponent} from "../contact-me/contact-me.component";
 import {WindowComponent} from "../window/window.component";
 
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -16,16 +24,17 @@ import {WindowComponent} from "../window/window.component";
 export class HomeComponent implements OnInit {
   @ViewChildren(BorderAnimateComponent) borderAnimateComponents!: QueryList<BorderAnimateComponent>;
   @ViewChildren(WindowComponent) windowComponent!: QueryList<WindowComponent>;
+  @ViewChild('windowContainer') windowContainer!: ElementRef;
   @ViewChild(NgScrollbar) scrollRef!: NgScrollbar;
-  @ViewChild(ContactMeComponent) contactMeComponent: ContactMeComponent | undefined;
+  @ViewChild('fullScreenContainer') fullScreenContainer!: ElementRef;
+  @ViewChild(ContactMeComponent) contactMeComponent?: ContactMeComponent;
   @ViewChild('wrapper') wrapper!: ElementRef;
   @ViewChild('disable') disable!: ElementRef;
   @ViewChild('nameContainer') nameContainer!: ElementRef;
   @ViewChild('greetingContainer') greetingContainer!: ElementRef;
   @ViewChild('scroll') scroll!: ElementRef;
-  @ViewChild('content') content!: ElementRef;
   @ViewChild('icon') icon!: ElementRef;
-  displayGreeting = true; //TODO true
+  displayGreeting = true;
   greetingInteract = this.displayGreeting;
   animated: HTMLElement[] = [];
   contentJson: Content = contentJson;
@@ -35,8 +44,8 @@ export class HomeComponent implements OnInit {
   toShow = false;
   disableInteractions = false;
   scrollTop = 0;
-  yPos = [70, 120, 150];
-  yPosMobile = [70, 146, 200];
+  yPos = [40, 80, 150];
+  yPosMobile = [40, 80, 150];
   zIndexes = [1, 2, 3];
   maximized = false;
   beforeMaximize: any;
@@ -54,25 +63,22 @@ export class HomeComponent implements OnInit {
         bac.startAnimating();
       })
     }
-    this.showIfHovered();
+    this.showScrollBarIfHovered();
     this.scrollRef.scrolled.subscribe((e: any) => {
       window.requestAnimationFrame(() => {
-        const rect = this.wrapper.nativeElement.getBoundingClientRect()
-        this.scrollTop = -rect.top;
-        if (this.scrollTop > (rect.height - Utils.viewHeight * 2)) {
-          this.scrollTop = rect.height - Utils.viewHeight * 2;
-        }
+        if (!this.maximized)
+          this.scrollTop = -this.wrapper.nativeElement.getBoundingClientRect().top;
         this.yPos.forEach((y, index) => {
           if ((this.scrollTop / Utils.viewHeight + 0.5) * 100 >= y) {
-            if (!this.windowComponent.get((index))!.opened)
+            if (!this.windowComponent.get((index))!.firstOpened)
               this.windowComponent.get(index)!.open();
           }
         })
-        this.showScrollbar();
+        this.showScrollBar();
         this.borderAnimateComponents.forEach((bac) => {
           bac.updateTopOffset();
         })
-        if (!this.avatarAnimated && this.contactMeComponent && e.target.scrollTop + Utils.viewHeight * 1.8 >= e.target.scrollHeight) {
+        if (!this.avatarAnimated && !this.maximized && this.contactMeComponent && e.target.scrollTop + Utils.viewHeight * 1.8 >= e.target.scrollHeight) {
           if (!this.scrollRef.state.verticalDragging && !this.disableInteractions) {
             this.scrollToBottom();
           }
@@ -83,32 +89,26 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  windowMaximizeChange(maximized: boolean) {
-    this.maximized = maximized;
-    if (maximized) {
-      this.beforeMaximize = document.getElementById('without-contact-me')!.getBoundingClientRect().bottom;
-      if (this.beforeMaximize < Utils.viewHeight) {
-        this.scrollRef.scrollTo({left: 0, bottom: Utils.viewHeight, duration: 0})
-      } else {
-        this.beforeMaximize = null
-      }
-    } else {
-      if (this.beforeMaximize) {
-        this.scrollRef.scrollTo({left: 0, bottom: this.beforeMaximize, duration: 0})
-      }
-    }
+  windowMaximizeChange(window: WindowComponent) {
+    if (window.maximized)
+      this.fullScreenContainer.nativeElement.appendChild(window.elementRef.nativeElement);
+    else
+      this.windowContainer.nativeElement.appendChild(window.elementRef.nativeElement);
+    this.maximized = window.maximized;
   }
 
-  setZIndexes(event: MouseEvent | TouchEvent) {
+  setZIndexes(window: WindowComponent) {
     this.windowComponent.forEach((win, index) => {
-      if (win.getWindow().contains(event.target)) {
+      if (!win.opened) {
+        this.zIndexes[index] = 1;
+      } else if (window === win) {
         if (this.zIndexes[index] === this.zIndexes.length) return;
+        this.zIndexes[index] = this.zIndexes.length;
         this.zIndexes.forEach((zIndex, i) => {
-          if (i !== index && zIndex >= this.zIndexes[index]) {
+          if (i !== index && this.zIndexes[i] > 1) {
             this.zIndexes[i]--;
           }
         })
-        this.zIndexes[index] = this.zIndexes.length;
       }
     })
   }
@@ -130,30 +130,37 @@ export class HomeComponent implements OnInit {
     window.setTimeout(() => {
       this.disableInteractions = false;
     }, scrollHeight / 4);
+    if (this.maximized) {
+      this.windowComponent.forEach((win) => {
+        if (win.maximized) {
+          win.maximizeMinimize(false);
+        }
+      })
+    }
   }
 
-  showIfHovered() {
+  showScrollBarIfHovered() {
     window.requestAnimationFrame(() => {
-      if (this.scrollRef.state.verticalHovered) {
-        this.showScrollbar();
+      if (this.scrollRef && this.scrollRef.state.verticalHovered) {
+        this.showScrollBar();
       }
-      this.showIfHovered();
+      this.showScrollBarIfHovered();
     })
   }
 
-  showScrollbar() {
+  showScrollBar() {
     this.toShow = true;
-    this.switchScrollbarVisibility(true);
+    this.switchScrollBarVisibility(true);
     if (this.hideScrollTimer) {
       window.clearTimeout(this.hideScrollTimer);
     }
     this.hideScrollTimer = window.setTimeout(() => {
       this.toShow = false;
-      this.switchScrollbarVisibility(false);
+      this.switchScrollBarVisibility(false);
     }, 1000);
   }
 
-  switchScrollbarVisibility(show: boolean, currentVisibility?: number) {
+  switchScrollBarVisibility(show: boolean, currentVisibility?: number) {
     if (this.toShow && !show) {
       return;
     }
@@ -169,7 +176,7 @@ export class HomeComponent implements OnInit {
     window.requestAnimationFrame(() => {
       this.scrollRef.nativeElement.style.setProperty('--scrollbar-thumb-color', 'rgba(255, 255, 255, ' + currentVisibility + ')');
       if (!show) {
-        this.switchScrollbarVisibility(show, currentVisibility);
+        this.switchScrollBarVisibility(show, currentVisibility);
       }
     })
   }
@@ -182,7 +189,8 @@ export class HomeComponent implements OnInit {
     return Utils.mobile;
   }
 
-  hint() {
+  scrollDownHint() {
+    if (!this.greetingContainer) return;
     if (Utils.mobile) {
       Anime({
         targets: this.greetingContainer.nativeElement,
@@ -205,7 +213,7 @@ export class HomeComponent implements OnInit {
         duration: 1000,
         delay: 5000,
         complete: () => {
-          this.hint()
+          this.scrollDownHint()
         }
       })
     } else {
@@ -218,7 +226,7 @@ export class HomeComponent implements OnInit {
         direction: "alternate",
         duration: 1000,
         complete: () => {
-          this.hint()
+          this.scrollDownHint()
         }
       })
     }
@@ -247,7 +255,7 @@ export class HomeComponent implements OnInit {
     this.allowScroll = true;
     this.animated.push(this.greetingContainer.nativeElement);
     this.animated.push(this.icon.nativeElement);
-    this.hint();
+    this.scrollDownHint();
   }
 
   setUpDisplay() {

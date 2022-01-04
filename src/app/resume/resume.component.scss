@@ -1,5 +1,48 @@
 #resume-content {
-  width: 100%;
-  height: 100vh;
-  background-color: white;
+  background-color: var(--myDark);
+  color: white;
+}
+
+.equal-width {
+  width: 50%;
+}
+
+.date {
+  display: inline-block;
+  background-color: var(--myPink);
+  border-radius: 3px;
+  padding: 2px 5px;
+}
+
+.item-header {
+  white-space: normal;
+  position: relative;
+  color: var(--myLightPink);
+  &::before {
+    content: '';
+    position: absolute;
+    left: -22px;
+    top: 50%;
+    width: 11px;
+    height: 11px;
+    background: var(--myLightPink);
+    transform: translateY(-50%);
+    border-radius: 10px;
+    z-index: 1;
+  }
+}
+
+.item-content {
+  white-space: normal;
+  font-weight: 200;
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    left: -17px;
+    top: -10px;
+    width: 1px;
+    bottom: -25px;
+    background: linear-gradient(to bottom, var(--myLightPink), rgba(0,0,0,0));
+  }
 }

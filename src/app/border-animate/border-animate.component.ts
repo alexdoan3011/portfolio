@@ -25,7 +25,7 @@ export class BorderAnimateComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.color = Utils.getColor(this.color);
+    this.color = Utils.getMyColor(this.color);
   }
 
   ngAfterViewInit(): void {
@@ -64,9 +64,10 @@ export class BorderAnimateComponent implements OnInit, AfterViewInit {
         if (this.currentY < 1) {
           this.currentX = Utils.viewWidth / 2;
           this.currentY = 0;
+        } else {
+          this.svg.nativeElement.setAttribute('viewBox', '0 0 ' + Utils.viewWidth + ' 1000');
+          this.path.nativeElement.setAttribute('d', 'M0,0 Q' + this.currentX + ',' + this.currentY + ' ' + Utils.viewWidth + ',0');
         }
-        this.svg.nativeElement.setAttribute('viewBox', '0 0 ' + Utils.viewWidth + ' 1000');
-        this.path.nativeElement.setAttribute('d', 'M0,0 Q' + this.currentX + ',' + this.currentY + ' ' + Utils.viewWidth + ',0');
       }
       this.animateLines();
     })

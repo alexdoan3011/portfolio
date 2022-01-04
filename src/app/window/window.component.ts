@@ -1,4 +1,12 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import Utils from "../utils";
 import Anime from "animejs";
 
@@ -13,7 +21,6 @@ export class WindowComponent implements OnInit {
   @Input() color: any;
   @Input() bg: string = '#FFFFFF';
   @Input() shadow = true;
-  @Input() roundedBottom = true;
   @Input() width = 0
   @Input() height = 0;
   @Input() minWidth = 0
@@ -21,11 +28,14 @@ export class WindowComponent implements OnInit {
   @Input() scrollTop = 0;
   @Input() putIt: 'left' | 'right' | 'mid' = 'mid'
   @Input() y = 0;
-  @Output() maximizeChange: EventEmitter<boolean> = new EventEmitter();
+  @Input() zIndex = 1;
+  @Output() maximizeChange: EventEmitter<WindowComponent> = new EventEmitter();
+  @Output() interacted: EventEmitter<WindowComponent> = new EventEmitter();
+  headerHeight = 30;
   size = {x: 900, y: 430};
   minSize = {x: 500, y: 430};
+  maxSize = {x: Utils.viewWidth, y: Utils.viewHeight};
   location = {x: 0, y: 0};
-  sizeBeforeMaximize: any;
   locBeforeMaximize: any;
   originalLocation: any;
   originalSize: any;
@@ -34,13 +44,17 @@ export class WindowComponent implements OnInit {
   resizingX = false;
   resizingY = false;
   resizeLeft = true;
+  resizeTop = true;
   maximized = false;
-  shadowColor: any;
   opened = false;
   whiteText = true;
   touched = false;
+  firstOpened = false;
+  firstClick = false;
+  elementRef: ElementRef
 
-  constructor() {
+  constructor(element: ElementRef) {
+    this.elementRef = element;
   }
 
   ngOnInit(): void {
@@ -67,24 +81,29 @@ export class WindowComponent implements OnInit {
     if (!this.color) {
       this.color = Utils.getRandomMaterialColor();
     } else if (this.color[0] === 'm' && this.color[1] === 'y') {
-      this.color = Utils.getColor(this.color);
+      this.color = Utils.getMyColor(this.color);
     }
     if (Utils.colorIsLight(this.color)) {
       this.whiteText = false;
     }
     if (this.bg[0] !== '#') {
-      this.bg = Utils.getColor(this.bg);
+      this.bg = Utils.getMyColor(this.bg);
     }
     this.originalSize = {...this.size};
-    this.shadowColor = this.lightenDarkenColor(this.color, -50);
   }
 
   getMaximizedHeight() {
-    return Utils.viewHeight - 50;
+    return Utils.viewHeight - this.headerHeight;
+  }
+
+  onInteracted() {
+    this.interacted.emit(this);
   }
 
   getWindow() {
-    return this.window.nativeElement;
+    if (this.window)
+      return this.window.nativeElement;
+    return null;
   }
 
   close(event: MouseEvent | TouchEvent) {
@@ -111,40 +130,50 @@ export class WindowComponent implements OnInit {
   }
 
   open() {
+    if (!this.firstOpened) this.firstOpened = true;
     if (this.opened) return;
     this.opened = true;
-    Anime({
-      targets: this.window.nativeElement,
-      opacity: {value: [0, 1], duration: 100},
-      scale: {value: [0.9, 1], duration: 100},
-      easing: 'linear',
-      duration: 100
-    })
+    const observer = new MutationObserver((mutations, me) => {
+      if (this.window) {
+        Anime({
+          targets: this.window.nativeElement,
+          opacity: {value: [0, 1], duration: 100},
+          scale: {value: [0.9, 1], duration: 100},
+          easing: 'linear',
+          duration: 100
+        });
+        me.disconnect(); // stop observing
+        return;
+      } else {
+        observer.observe(document, {
+          childList: true,
+          subtree: true
+        });
+      }
+    });
+
+// start observing
+    observer.observe(document, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  setMaxHeight(newMaxHeight: number) {
+    this.maxSize.y = newMaxHeight + this.headerHeight;
+    if (this.size.y > this.maxSize.y) {
+      this.size.y = this.maxSize.y;
+    }
   }
 
   setHeight(newHeight: number) {
-    if (!this.resizingY && this.size.y < newHeight + 50) {
-      this.size.y = newHeight + 50;
+    if (!this.resizingY && this.size.y < newHeight + this.headerHeight) {
+      if (newHeight > 800 && !this.maximized) {
+        this.size.y = 800;
+      } else {
+        this.size.y = newHeight + this.headerHeight;
+      }
     }
-  }
-
-  lightenDarkenColor(col: string, amt: number) {
-    let usePound = false;
-    if (col[0] == "#") {
-      col = col.slice(1);
-      usePound = true;
-    }
-    const num = parseInt(col, 16);
-    let r = (num >> 16) + amt;
-    if (r > 255) r = 255;
-    else if (r < 0) r = 0;
-    let b = ((num >> 8) & 0x00FF) + amt;
-    if (b > 255) b = 255;
-    else if (b < 0) b = 0;
-    let g = (num & 0x0000FF) + amt;
-    if (g > 255) g = 255;
-    else if (g < 0) g = 0;
-    return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16);
   }
 
   stopEditing() {
@@ -163,8 +192,6 @@ export class WindowComponent implements OnInit {
     }
     if (this.maximized) {
       this.maximized = false;
-      if (this.sizeBeforeMaximize)
-        this.size = this.sizeBeforeMaximize;
       if (stickToMouse) {
         let temp = {...this.originalMouseLocation};
         temp.y += this.scrollTop - 25;
@@ -174,22 +201,26 @@ export class WindowComponent implements OnInit {
       }
       if (this.locBeforeMaximize)
         this.location = this.locBeforeMaximize;
-      this.sizeBeforeMaximize = null;
       this.locBeforeMaximize = null;
-      this.maximizeChange.emit(false);
-      return;
+    } else {
+      this.maximized = true;
+      if (!this.locBeforeMaximize) {
+        this.locBeforeMaximize = this.location;
+      }
+      this.location = {x: 0, y: this.scrollTop};
     }
-    this.maximized = true;
-    if (!this.sizeBeforeMaximize || !this.locBeforeMaximize) {
-      this.sizeBeforeMaximize = this.size;
-      this.locBeforeMaximize = this.location;
-    }
-    this.location = {x: 0, y: this.scrollTop};
-    this.size = {x: Utils.viewWidth, y: Utils.viewHeight};
-    this.maximizeChange.emit(true);
+    this.maximizeChange.emit(this);
   }
 
-  startEditing(event: MouseEvent | TouchEvent, resize?: 'lx' | 'rx' | 'y' | 'lxy' | 'rxy') {
+  getViewportHeight() {
+    return Utils.viewHeight + 'px';
+  }
+
+  getViewportWidth() {
+    return Utils.viewWidth + 'px';
+  }
+
+  startEditing(event: MouseEvent | TouchEvent, resize?: 'l' | 'r' | 'b' | 't' | 'lb' | 'rb' | 'lt' | 'rt') {
     if ((event.target as HTMLElement).classList.contains('window-button')) {
       return;
     }
@@ -201,44 +232,94 @@ export class WindowComponent implements OnInit {
       this.originalMouseLocation = {x: event.touches[0].clientX, y: event.touches[0].clientY};
       this.touched = true;
     }
+    if (!this.firstClick) {
+      this.firstClick = true;
+      window.setTimeout(() => this.firstClick = false, 250);
+    } else {
+      this.maximizeMinimize(false);
+      return;
+    }
     this.originalLocation = {...this.location};
     if (!resize) {
       this.dragging = true;
-      if (this.maximized) {
-        this.maximizeMinimize(true);
-      }
       return;
     }
     this.originalSize = {...this.size};
-    this.resizeLeft = resize[0] === 'l';
-    if (resize.includes('x')) {
+    switch (resize) {
+      case "l":
+        this.resizeLeft = true;
+        break;
+      case "lt":
+        this.resizeTop = true;
+        this.resizeLeft = true;
+        break;
+      case "lb":
+        this.resizeTop = false;
+        this.resizeLeft = true;
+        break;
+      case "r":
+        this.resizeLeft = false;
+        break;
+      case "rt":
+        this.resizeTop = true;
+        this.resizeLeft = false;
+        break;
+      case "rb":
+        this.resizeTop = false;
+        this.resizeLeft = false;
+        break;
+      case "b":
+        this.resizeTop = false;
+        break;
+      case "t":
+        this.resizeTop = true;
+    }
+    if (resize.includes('r') || resize.includes('l')) {
       this.resizingX = true;
     }
-    if (resize.includes('y')) {
+    if (resize.includes('t') || resize.includes('b')) {
       this.resizingY = true;
     }
   }
 
   editSize(event: MouseEvent) {
     if (!this.resizingX && !this.resizingY) return;
-    if (this.resizingX && !this.resizeLeft) {
-      this.size.x = (event.clientX - this.originalMouseLocation.x) + this.originalSize.x;
-      if (this.size.x < this.minSize.x) {
-        this.size.x = this.minSize.x;
-      }
-    } else if (this.resizingX) {
+    if (this.resizingX && this.resizeLeft) {
       this.size.x = this.originalSize.x - (event.clientX - this.originalMouseLocation.x);
       if (this.size.x < this.minSize.x) {
         this.size.x = this.minSize.x;
         this.location.x = this.originalSize.x - this.size.x + this.originalLocation.x;
-        return;
+      } else if (this.size.x > this.maxSize.x) {
+        this.size.x = this.maxSize.x;
+        this.location.x = this.originalSize.x - this.size.x + this.originalLocation.x;
+      } else {
+        this.location.x = (event.clientX - this.originalMouseLocation.x) + this.originalLocation.x;
       }
-      this.location.x = (event.clientX - this.originalMouseLocation.x) + this.originalLocation.x;
+    } else if (this.resizingX) {
+      this.size.x = (event.clientX - this.originalMouseLocation.x) + this.originalSize.x;
+      if (this.size.x < this.minSize.x) {
+        this.size.x = this.minSize.x;
+      } else if (this.size.x > this.maxSize.x) {
+        this.size.x = this.maxSize.x;
+      }
     }
-    if (this.resizingY) {
+    if (this.resizingY && this.resizeTop) {
+      this.size.y = this.originalSize.y - (event.clientY - this.originalMouseLocation.y);
+      if (this.size.y < this.minSize.y) {
+        this.size.y = this.minSize.y;
+        this.location.y = this.originalSize.y - this.size.y + this.originalLocation.y;
+      } else if (this.size.y > this.maxSize.y) {
+        this.size.y = this.maxSize.y;
+        this.location.y = this.originalSize.y - this.size.y + this.originalLocation.y;
+      } else {
+        this.location.y = (event.clientY - this.originalMouseLocation.y) + this.originalLocation.y;
+      }
+    } else if (this.resizingY) {
       this.size.y = (event.clientY - this.originalMouseLocation.y) + this.originalSize.y;
       if (this.size.y < this.minSize.y) {
         this.size.y = this.minSize.y;
+      } else if (this.size.y > this.maxSize.y) {
+        this.size.y = this.maxSize.y;
       }
     }
   }
@@ -246,9 +327,19 @@ export class WindowComponent implements OnInit {
   editPosition(event: MouseEvent | TouchEvent) {
     if (!this.dragging) return;
     if (event instanceof MouseEvent) {
+      if (this.maximized && ((event.clientX - this.originalMouseLocation.x) > 2 || (event.clientY - this.originalMouseLocation.y) > 2)) {
+        this.maximizeMinimize(true);
+      } else if (this.maximized) {
+        return;
+      }
       this.location.x = (event.clientX - this.originalMouseLocation.x) + this.originalLocation.x;
       this.location.y = (event.clientY - this.originalMouseLocation.y) + this.originalLocation.y;
     } else {
+      if (this.maximized && ((event.touches[0].clientX - this.originalMouseLocation.x) > 2 || (event.touches[0].clientY - this.originalMouseLocation.y) > 2)) {
+        this.maximizeMinimize(true);
+      } else if (this.maximized) {
+        return;
+      }
       this.location.x = (event.touches[0].clientX - this.originalMouseLocation.x) + this.originalLocation.x;
       this.location.y = (event.touches[0].clientY - this.originalMouseLocation.y) + this.originalLocation.y;
     }

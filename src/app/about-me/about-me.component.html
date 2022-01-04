@@ -1,4 +1,4 @@
-<div #aboutMeContent id="about-me-content" class="d-flex d-block" [ngClass]="vertical?('flex-column'):('flex-row')">
+<div #aboutMeContent id="about-me-content" class="d-flex d-block overflow-hidden" [ngClass]="vertical?('flex-column'):('flex-row')">
   <div id="about-me-text">
     <p *ngFor="let p of content" [innerHTML]="p"></p>
     <p>My main focus is creating responsive, fast and smooth interactive digital experiences. I am looking for new opportunities. Don't hesitate to <span class="link lk-light" (click)="toBottom.emit()">contact me</span> if you've got an offer!</p>

@@ -35,7 +35,7 @@ export default class Utils {
       (33 + 33 * Math.random()) + '%)'
   }
 
-  static getColor(name: string) {
+  static getMyColor(name: string) {
     return window.getComputedStyle(document.documentElement).getPropertyValue('--' + name);
   }
 

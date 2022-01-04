@@ -17,6 +17,7 @@ import { AvatarAnimateComponent } from './avatar-animate/avatar-animate.componen
 import { ProjectsComponent } from './projects/projects.component';
 import { AboutMeComponent } from './about-me/about-me.component';
 import { ResumeComponent } from './resume/resume.component';
+import { NavigationComponent } from './navigation/navigation.component';
 
 @NgModule({
   declarations: [
@@ -33,12 +34,13 @@ import { ResumeComponent } from './resume/resume.component';
     ProjectsComponent,
     AboutMeComponent,
     ResumeComponent,
+    NavigationComponent,
   ],
   imports: [
     AppRoutingModule,
     BrowserModule,
     RouterModule,
-    NgScrollbarModule
+    NgScrollbarModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

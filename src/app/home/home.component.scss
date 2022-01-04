@@ -1,13 +1,4 @@
 $about-me-bg: var(--myDarkPurple);
-#bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  background: var(--myDark);
-  width: 100%;
-  pointer-events: none;
-  z-index: -100;
-}
 
 #disable {
   z-index: 10000 !important;
@@ -35,18 +26,11 @@ $about-me-bg: var(--myDarkPurple);
 
 #contentWrapper {
   color: white;
-  margin: 30vh 0 0 0;
 }
 
 .name {
   position: absolute;
 }
-
-#scroll {
-  height: 100%;
-  width: 100%;
-}
-
 
 .scroll-bar {
   --scrollbar-thumb-color: rgba(255, 255, 255, 0);
@@ -63,6 +47,12 @@ $about-me-bg: var(--myDarkPurple);
   left: 0;
   width: 100%;
   transform: scale(0.5);
+}
+
+#intro {
+  position: relative;
+  height: 40vh;
+  background: var(--myDark);
 }
 
 #icon {
@@ -103,16 +93,11 @@ $about-me-bg: var(--myDarkPurple);
 
 //[aria-label][data-balloon-pos]:after { color : black; background: white; }
 
-#introduction {
-  position: relative;
-  height: 30vh;
-}
-
 #introduction-text {
   font-size: 2vmax;
-  margin: 30px;
   color: gray;
   padding-left: 12vw;
+  margin-top: 70px;
 }
 
 app-border-animate {
@@ -124,16 +109,15 @@ app-border-animate {
 }
 
 #second-half {
-   width: 100%;
-   height: 100vh;
-   background-color: var(--myPurple);
- }
+  width: 100%;
+  height: 100vh;
+  background-color: var(--myPurple);
+}
 
 #window-container {
   background-color: $about-me-bg;
-  > div {
-    padding-bottom: 10vh;
-  }
+  width: 100%;
+  z-index: 1;
 }
 
 #about-me-border {
@@ -141,15 +125,12 @@ app-border-animate {
   bottom: 0;
 }
 
-app-window[title="About me"] {
-  margin: 20px 20px;
-}
-
 #contact-me-container {
   position: sticky;
   bottom: 0;
   left: 0;
   z-index: 0;
+  overflow: hidden;
 }
 
 #contact-me {
@@ -162,6 +143,11 @@ app-window[title="About me"] {
 }
 
 @media (orientation: portrait) {
+
+  #intro {
+    height: 30vh;
+  }
+
   #icon {
     font-size: 20vw;
     opacity: 0;
@@ -169,11 +155,6 @@ app-window[title="About me"] {
 
   #name-container {
     transform: scale(1);
-  }
-
-  #introduction div {
-    margin: 30px;
-    padding: 0;
   }
 
   #old {

@@ -4,8 +4,7 @@ import {GreetingBgComponent} from 'src/app/greeting-bg/greeting-bg.component';
 import * as d3 from 'd3';
 import Utils from "../utils";
 import fastdom from "fastdom";
-
-declare var require: any;
+import {flubber} from "../services/requires.service";
 
 @Component({
   selector: 'app-greeting',
@@ -24,12 +23,15 @@ export class GreetingComponent implements AfterViewInit {
   @Output() doneTransforming: EventEmitter<HTMLElement> = new EventEmitter();
   @Output() cleaningUp: EventEmitter<any> = new EventEmitter();
 
-
   @HostListener('mousewheel', ['$event'])
-  scroll(event?: WheelEvent) {
-    if (!this.scrollAllowed) return;
+  scrollWheel(event?: WheelEvent) {
     if (event) {
       if (event.deltaY > 0) {
+        if (!this.scrollAllowed) return;
+        if (!this.welcomeAnimated) {
+          this.displayText = false;
+          this.textTransformDuration = 0;
+        }
         this.hammer.destroy();
         this.cleanUp();
         return;
@@ -40,11 +42,13 @@ export class GreetingComponent implements AfterViewInit {
     }
   }
 
+  private welcomeAnimated = false;
+  displayText = true;
   textTransformDuration = 500;
   sweep = false;
   animated: HTMLElement[] = [];
   hammer: any;
-  scrollAllowed = false;
+  scrollAllowed = true;
 
 
   constructor() {
@@ -54,7 +58,7 @@ export class GreetingComponent implements AfterViewInit {
     this.animateHello();
     this.hammer = new Hammer(this.wrapper.nativeElement);
     this.hammer.get('swipe').set({direction: Hammer.DIRECTION_VERTICAL});
-    this.hammer.on('swipeup', () => this.scroll());
+    this.hammer.on('swipeup', () => this.scrollWheel());
   }
 
   cleanUp() {
@@ -73,11 +77,11 @@ export class GreetingComponent implements AfterViewInit {
       translateX: '50%',
       translateY: '50%',
       easing: 'easeInOutSine',
-      duration: 50,
+      duration: this.textTransformDuration / 10,
       complete: () => {
         Anime({
           targets: this.welcome.nativeElement,
-          top: ['50%', '25%'],
+          top: ['50%', '10%'],
           left: ['50%', '50%'],
           scale: Utils.mobile ? 1 : 0.5,
           easing: 'easeInOutSine',
@@ -95,7 +99,6 @@ export class GreetingComponent implements AfterViewInit {
   }
 
   async morphText() {
-    const interpol = require('flubber');
     const firstText = [d3.select('#m1'), d3.select('#m2'), d3.select('#m3'), d3.select('#m4'), d3.select('#m5'), d3.select('#m6'), d3.select('#m7')]
     const secondTextPath = ['M0.5,77.8V5.7h11.8v72.1H0.5z',
       'M90.5,77.8l-2.3-7.6h-0.4c-2.6,3.3-5.3,5.6-7.9,6.8c-2.7,1.2-6.1,1.8-10.3,1.8c-5.4,0-9.5-1.4-12.6-4.3' +
@@ -116,7 +119,7 @@ export class GreetingComponent implements AfterViewInit {
       'M403,49.9l-18.3-26.7h13.2l12.4,19.1l12.5-19.1H436l-18.3,26.7l19.3,27.9h-13.1l-13.5-20.4l-13.4,20.4h-13.1' +
       'L403,49.9z']
     for (let i = 0; i < secondTextPath.length; i++) {
-      const interpolator = interpol.interpolate(firstText[i].attr('d'), secondTextPath[i]);
+      const interpolator = flubber.interpolate(firstText[i].attr('d'), secondTextPath[i]);
       firstText[i].transition()
         .duration(this.textTransformDuration)
         .attrTween("d", function () {
@@ -124,6 +127,10 @@ export class GreetingComponent implements AfterViewInit {
         }).end().then(() => {
         if (i == secondTextPath.length - 1) {
           this.doneTransforming.emit(this.welcome.nativeElement);
+          if (!this.welcomeAnimated) {
+            this.cleaningUp.emit();
+            this.cleanedUp.emit();
+          }
         }
       })
       Anime({
@@ -161,6 +168,7 @@ export class GreetingComponent implements AfterViewInit {
   animateWelcome() {
     this.cleaningUp.emit();
     this.scrollAllowed = true;
+    this.welcomeAnimated = true;
     this.animated.push(this.welcome.nativeElement);
     Anime({
       targets: this.welcome.nativeElement,

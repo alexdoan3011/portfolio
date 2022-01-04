@@ -23,8 +23,6 @@ export class AboutMeComponent implements AfterViewInit {
   checkIfVertical() {
     let rect = this.aboutMeContent.nativeElement.getBoundingClientRect();
     this.shifted.emit(rect.height);
-    if (this.vertical !== (rect.width < 800)) {
-      this.vertical = rect.width < 800;
-    }
+    this.vertical = rect.width < 800;
   }
 }

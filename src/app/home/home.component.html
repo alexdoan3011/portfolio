@@ -1,79 +1,79 @@
 <div #disable [hidden]="!disableInteractions" class="w-100 h-100 fixed-top"></div>
-<div #scroll id="scroll">
-  <div id="old">
-    <button routerLink="/old" id="old-btn"
-            aria-label="I'm still working ⌛&#10;on my new site ☝&#10;See my old site 👇&#10;in the meantime? 🥺"
-            data-balloon-pos="up" data-balloon-break><i class="fas fa-arrow-right"></i></button>
-  </div>
-  <div class="d-flex justify-content-center no-select" #icon *ngIf="greetingInteract" id="icon">
-    <div class="d-flex justify-content-center flex-column text-center">
-      <div *ngIf="!isMobile()"> Scroll down
-      </div>
-      <i class="fa" [class.fa-angle-up]="isMobile()" [class.fa-angle-down]="!isMobile()"></i>
-    </div>
-  </div>
-  <div #greetingContainer *ngIf="displayGreeting" [class.no-interact]="!greetingInteract" id="greetingContainer"
-       [style.height]="getViewportHeight()">
-    <app-greeting id="greetingComponent" class="no-select"
-                  (doneTransforming)="setNamePos($event); setUpDisplay()" (cleanedUp)="removeGreeting()"
-                  (cleaningUp)="allowScrolling()"></app-greeting>
-  </div>
-  <ng-scrollbar [disabled] = "maximized" class="scroll-bar" viewClass="no-scrollbar">
-    <div #wrapper id="wrapper" class="d-flex flex-column">
-      <div class="d-flex flex-column" id="without-contact-me" [style.height]="allowScroll?'auto':getViewportHeight()">
-        <div id="bg" [style.height]="getViewportHeight()"></div>
-        <div #nameContainer id="name-container"></div>
-        <div #content id="contentWrapper">
-          <div id="introduction" class="d-flex justify-content-center">
-            <div id="introduction-text">{{contentJson.introduction}}</div>
-            <app-border-animate *ngIf="!isMobile()"></app-border-animate>
-          </div>
-          <div id="window-container" [style.height]="getViewportHeight()" class="d-flex flex-column justify-content-center justify-content-between">
-            <app-window #aboutMeWindow
-                        [scrollTop]="scrollTop"
-                        title="About me"
-                        [y]="isMobile()?yPosMobile[0]:yPos[0]"
-                        [width]="isMobile()?90:0"
-                        (mousedown)="setZIndexes($event)"
-                        (touchstart)="setZIndexes($event)"
-                        (maximizeChange)="windowMaximizeChange($event)"
-                        [style.z-index]="zIndexes[0]">
-              <app-about-me (toBottom)="scrollToBottom()" (shifted)="aboutMeWindow.setHeight($event)"
-                            [content]="contentJson.aboutMe"></app-about-me>
-            </app-window>
-            <app-window [scrollTop]="scrollTop"
-                        title="Some of my works"
-                        [y]="isMobile()?yPosMobile[1]:yPos[1]"
-                        [width]="isMobile()?90:60" [putIt]="'left'"
-                        (mousedown)="setZIndexes($event)"
-                        (touchstart)="setZIndexes($event)"
-                        (maximizeChange)="windowMaximizeChange($event)"
-                        [style.z-index]="zIndexes[1]">
-              <app-projects></app-projects>
-            </app-window>
-            <app-window [scrollTop]="scrollTop"
-                        title="My journey"
-                        [y]="isMobile()?yPosMobile[2]:yPos[2]"
-                        [width]="isMobile()?90:60"
-                        [putIt]="'right'"
-                        (mousedown)="setZIndexes($event)"
-                        (touchstart)="setZIndexes($event)"
-                        (maximizeChange)="windowMaximizeChange($event)"
-                        [style.z-index]="zIndexes[2]">
-              <app-resume></app-resume>
-            </app-window>
-            <div class="position-relative w-100">
-              <app-border-animate id="about-me-border" *ngIf="!isMobile()" color="myDarkPurple"></app-border-animate>
-            </div>
-          </div>
-          <div id="second-half"></div>
-        </div>
-      </div>
-      <div id="contact-me-container" [style.height]="getViewportHeight()">
-        <app-contact-me [style.height]="getViewportHeight()" [style.width]="getViewportWidth()"
-                        id="contact-me"></app-contact-me>
-      </div>
-    </div>
-  </ng-scrollbar>
+<div id="old">
+  <button routerLink="/old" id="old-btn"
+          aria-label="I'm still working ⌛&#10;on my new site ☝&#10;See my old site 👇&#10;in the meantime? 🥺"
+          data-balloon-pos="up" data-balloon-break><i class="fas fa-arrow-right"></i></button>
 </div>
+<div class="d-flex justify-content-center no-select" #icon *ngIf="greetingInteract" id="icon">
+  <div class="d-flex justify-content-center flex-column text-center">
+    <div *ngIf="!isMobile()"> Scroll down
+    </div>
+    <i class="fa" [class.fa-angle-up]="isMobile()" [class.fa-angle-down]="!isMobile()"></i>
+  </div>
+</div>
+<div #greetingContainer *ngIf="displayGreeting" [class.no-interact]="!greetingInteract" id="greetingContainer"
+     [style.height]="getViewportHeight()">
+  <app-greeting id="greetingComponent" class="no-select"
+                (doneTransforming)="setNamePos($event); setUpDisplay()" (cleanedUp)="removeGreeting()"
+                (cleaningUp)="allowScrolling()"></app-greeting>
+</div>
+<div #fullScreenContainer></div>
+<ng-scrollbar #scroll id="scroll" [disabled]="maximized" class="scroll-bar" viewClass="no-scrollbar">
+  <div #wrapper id="wrapper" class="d-flex flex-column" [style.height]="allowScroll?'auto':getViewportHeight()">
+    <div class="d-flex flex-column" id="without-contact-me">
+      <div id="intro" class="d-flex flex-column justify-content-center">
+        <div #nameContainer id="name-container"></div>
+        <div id="introduction" class="d-flex justify-content-center">
+          <div id="introduction-text">{{contentJson.introduction}}</div>
+        </div>
+        <app-border-animate *ngIf="!isMobile()"></app-border-animate>
+      </div>
+      <div id="contentWrapper">
+        <div #windowContainer class="d-flex justify-content-end" id="window-container" [style.height]="getViewportHeight()">
+          <app-window #aboutMeWindow
+                      [scrollTop]="scrollTop"
+                      title="About me"
+                      [y]="isMobile()?yPosMobile[0]:yPos[0]"
+                      [width]="isMobile()?90:0"
+                      (interacted)="setZIndexes($event)"
+                      (maximizeChange)="windowMaximizeChange($event)"
+                      [zIndex]="zIndexes[0]">
+            <app-about-me (toBottom)="scrollToBottom()" (shifted)="aboutMeWindow.setHeight($event)"
+                          [content]="contentJson.aboutMe"></app-about-me>
+          </app-window>
+          <app-window #resumeWindow
+                      [scrollTop]="scrollTop"
+                      title="My resume"
+                      [y]="isMobile()?yPosMobile[1]:yPos[1]"
+                      [width]="isMobile()?90:60"
+                      [putIt]="isMobile()?'mid':'left'"
+                      [height]="80"
+                      (interacted)="setZIndexes($event)"
+                      (maximizeChange)="windowMaximizeChange($event)"
+                      [zIndex]="zIndexes[1]">
+            <app-resume (shifted)="resumeWindow.setMaxHeight($event)"></app-resume>
+          </app-window>
+          <app-window [scrollTop]="scrollTop"
+                      title="Some of my works"
+                      [y]="isMobile()?yPosMobile[2]:yPos[2]"
+                      [width]="isMobile()?90:60"
+                      [putIt]="isMobile()?'mid':'right'"
+                      (interacted)="setZIndexes($event)"
+                      (maximizeChange)="windowMaximizeChange($event)"
+                      [zIndex]="zIndexes[2]">
+            <app-projects></app-projects>
+          </app-window>
+          <div class="position-relative w-100">
+            <app-border-animate id="about-me-border" *ngIf="!isMobile()" color="myDarkPurple"></app-border-animate>
+          </div>
+        </div>
+        <div id="second-half"></div>
+      </div>
+    </div>
+    <div id="contact-me-container" [style.height]="allowScroll?getViewportHeight():'0px'">
+      <app-contact-me [style.height]="getViewportHeight()" [style.width]="getViewportWidth()"
+                      id="contact-me"></app-contact-me>
+    </div>
+  </div>
+</ng-scrollbar>
 

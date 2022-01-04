@@ -1,5 +1,6 @@
-import {Component, ViewEncapsulation, AfterViewInit, OnInit} from '@angular/core';
+import {Component, ViewEncapsulation, AfterViewInit, OnInit, ViewChildren, QueryList} from '@angular/core';
 import Utils from "./utils";
+import {WindowComponent} from "./window/window.component";
 
 
 @Component({
@@ -10,6 +11,7 @@ import Utils from "./utils";
 })
 export class AppComponent implements OnInit, AfterViewInit {
   title = 'portfolio';
+  @ViewChildren(WindowComponent) windowComponent!: QueryList<WindowComponent>;
 
 
   ngOnInit(): void {
