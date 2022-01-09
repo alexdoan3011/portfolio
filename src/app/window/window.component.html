@@ -1,4 +1,5 @@
 <div #wrapper class="interact">
+  <div id="bg-hider" *ngIf="maximized" class="no-interact bg-dark w-100 h-100 position-absolute top-0 start-0" style="z-index: 1"></div>
   <div class="blocker" id="1" style="cursor: move" *ngIf="dragging&&!touched" (mousemove)="editPosition($event)"
        (mouseleave)="editPosition($event)" (window:mouseup)="stopEditing($event)"></div>
   <div class="blocker" id="2"
@@ -12,6 +13,7 @@
        [attr.data-balloon-pos]="isMobile()? 'up-left' :'up'"
        [class]="'d-flex justify-content-center flex-column' + (maximized?' no-overscroll no-scrollbar':'')"
        [style.opacity]="dragging&&!maximized?'0.9':'1'"
+       [style.transition]="dragging&&!maximized?'opacity 0.5s':'0'"
        [style.z-index]="zIndex"
        [style.transform]="'translateX('+ (maximized?0:location.x) +'px) translateY('+(maximized?0:location.y) +'px)'"
        [style.width]="maximized?'100%':size.x+'px'" [style.height]="maximized?'100%':size.y+'px'"

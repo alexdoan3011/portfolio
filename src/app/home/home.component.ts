@@ -147,13 +147,17 @@ export class HomeComponent implements OnInit {
   windowMaximizeChange(window: WindowComponent) {
     const scrollTop = -this.wrapper.nativeElement.getBoundingClientRect().top;
     if (this.maximized) {
+      this.maximized = false;
+      window.minimize(this.beforeMaximize);
       const resizeObserver = new ResizeObserver(() => {
-        this.scrollRef.scrollTo({left: 0, top: this.beforeMaximize, duration: 0});
+        this.scrollRef.scrollTo({
+          left: 0,
+          top: this.beforeMaximize,
+          duration: 0
+        })
         resizeObserver.unobserve(this.wrapper.nativeElement);
       });
       resizeObserver.observe(this.wrapper.nativeElement);
-      this.maximized = false;
-      window.minimize(scrollTop);
     } else {
       this.beforeMaximize = scrollTop;
       this.scrollRef.scrollTo({left: 0, top: 0, duration: 0});

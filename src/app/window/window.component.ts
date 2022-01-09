@@ -148,7 +148,7 @@ export class WindowComponent implements OnInit {
       if (this.window) {
         Anime({
           targets: this.window.nativeElement,
-          opacity: {value: [0, 1], duration: 100},
+          opacity: {value: 1, duration: 100},
           scale: {value: [0.9, 1], duration: 100},
           easing: 'linear',
           duration: 100

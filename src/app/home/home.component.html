@@ -12,17 +12,17 @@
     <i class="fa" [class.fa-angle-up]="isMobile()" [class.fa-angle-down]="!isMobile()"></i>
   </div>
 </div>
-<div #greetingContainer
-     *ngIf="displayGreeting"
-     [class.no-interact]="!displayHint"
-     id="greetingContainer"
-     [style.height]="getViewportHeight()">
-  <app-greeting id="greetingComponent" class="no-select"
-                (doneTransforming)="setNamePos($event)" (cleanedUp)="removeGreeting()"
-                (cleaningUp)="displayHint=false"></app-greeting>
-</div>
 <ng-scrollbar #scroll [disabled]="isMobile()||maximized" id="scroll" [class.no-select]="editingWindow"
               viewClass="no-scrollbar">
+  <div #greetingContainer
+       *ngIf="displayGreeting"
+       [class.no-interact]="!displayHint"
+       id="greetingContainer"
+       [style.height]="getViewportHeight()">
+    <app-greeting id="greetingComponent" class="no-select"
+                  (doneTransforming)="setNamePos($event)" (cleanedUp)="removeGreeting()"
+                  (cleaningUp)="displayHint=false"></app-greeting>
+  </div>
   <div #wrapper id="wrapper" class="d-flex flex-column"
        [style.height]="maximized?getViewportHeight():'auto'">
     <div class="d-flex flex-column" id="without-contact-me">
