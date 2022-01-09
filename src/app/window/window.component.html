@@ -1,45 +1,62 @@
-<div class="blocker" style="cursor: move" *ngIf="dragging&&!touched" (mousemove)="editPosition($event)"
-     (mouseleave)="editPosition($event)" (window:mouseup)="stopEditing()"></div>
-<div class="blocker"
-     [style.cursor]="resizingX?(resizingY?(resizeLeft?(resizeTop?'nwse-resize':'nesw-resize'):(resizeTop?'nesw-resize':'nwse-resize')):'ew-resize'):'ns-resize'"
-     *ngIf="resizingX||resizingY"
-     (mousemove)="editSize($event)" (mouseleave)="editSize($event)" (window:mouseup)="stopEditing()"></div>
-<div #window id="window"
-     *ngIf="opened"
-     (mousedown)="onInteracted()"
-     (touchstart)="onInteracted()"
-     [class]="'d-flex justify-content-center flex-column' + (maximized?' no-overscroll no-scrollbar':'')"
-     [style.z-index]="zIndex"
-     [style.transform]="'translateX('+ (maximized?0:location.x) +'px) translateY('+(maximized?0:location.y) +'px)'"
-     [style.width]="maximized?'100%':size.x+'px'" [style.height]="maximized?'100%':size.y+'px'"
-     [style.min-width]="minSize.x" [style.min-height]="minSize.y">
-  <div class="resize-x" id="resize-x-left" (mousedown)="startEditing($event, 'l')"></div>
-  <div class="resize-y" id="resize-y-bottom" (mousedown)="startEditing($event,  'b')"></div>
-  <div class="resize-x" id="resize-x-right" (mousedown)="startEditing($event, 'r')"></div>
-  <div class="resize-y" id="resize-y-top" (mousedown)="startEditing($event,  't')"></div>
-  <div class="resize-xy" id="resize-xy-left-top" (mousedown)="startEditing($event, 'lt')"></div>
-  <div class="resize-xy" id="resize-xy-right-top" (mousedown)="startEditing($event, 'rt')"></div>
-  <div class="resize-xy" id="resize-xy-left-bottom" (mousedown)="startEditing($event, 'lb')"></div>
-  <div class="resize-xy" id="resize-xy-right-bottom" (mousedown)="startEditing($event, 'rb')"></div>
-  <div *ngIf="opened" class="d-flex flex-column" id="window-bg"
-       [style.background-color]="bg"
-       [style.box-shadow]="'inset 0 ' + headerHeight + 'px 0 0 ' + color + (shadow?', 0 3px 0 ' + color + ', -10px 15px 0 rgba(0, 0, 0, 0.05)':'')">
-    <div class="d-flex justify-content-between align-items-center w-100" id="window-header-bg"
-         [style.height]="headerHeight+'px'"
-         (mousedown)="startEditing($event)" (touchstart)="startEditing($event)"
-         (touchmove)="editPosition($event)">
-      <p id="window-header" [style.color]="whiteText?'white':'black'">{{title}}</p>
-      <div id="buttons" class="d-flex flex-row align-items-center">
-        <div class="window-button maximize d-flex justify-content-center align-items-center" (touchstart)="maximizeMinimize(false, $event)"
-             (click)="maximizeMinimize(false, $event)"></div>
-        <div class="window-button close d-flex justify-content-center align-items-center" (touchstart)="close($event)"
-             (click)="close($event)"></div>
+<div #wrapper class="interact">
+  <div class="blocker" id="1" style="cursor: move" *ngIf="dragging&&!touched" (mousemove)="editPosition($event)"
+       (mouseleave)="editPosition($event)" (window:mouseup)="stopEditing($event)"></div>
+  <div class="blocker" id="2"
+       [style.cursor]="resizingX?(resizingY?(resizeLeft?(resizeTop?'nwse-resize':'nesw-resize'):(resizeTop?'nesw-resize':'nwse-resize')):'ew-resize'):'ns-resize'"
+       *ngIf="resizingX||resizingY"
+       (mousemove)="editSize($event)" (mouseleave)="editSize($event)" (window:mouseup)="stopEditing($event)"></div>
+  <div class="blocker" id="3" *ngIf="touchDelay"></div>
+  <div #window id="window"
+       (mousedown)="onInteracted()"
+       (touchstart)="onInteracted()"
+       [attr.data-balloon-pos]="isMobile()? 'up-left' :'up'"
+       [class]="'d-flex justify-content-center flex-column' + (maximized?' no-overscroll no-scrollbar':'')"
+       [style.opacity]="dragging&&!maximized?'0.9':'1'"
+       [style.z-index]="zIndex"
+       [style.transform]="'translateX('+ (maximized?0:location.x) +'px) translateY('+(maximized?0:location.y) +'px)'"
+       [style.width]="maximized?'100%':size.x+'px'" [style.height]="maximized?'100%':size.y+'px'"
+       [style.min-width]="minSize.x" [style.min-height]="minSize.y">
+    <div class="resize-x" id="resize-x-left" (mousedown)="startEditing($event, 'l')"></div>
+    <div class="resize-y" id="resize-y-bottom" (mousedown)="startEditing($event,  'b')"></div>
+    <div class="resize-x" id="resize-x-right" (mousedown)="startEditing($event, 'r')"></div>
+    <div class="resize-y" id="resize-y-top" (mousedown)="startEditing($event,  't')"></div>
+    <div class="resize-xy" id="resize-xy-left-top" (mousedown)="startEditing($event, 'lt')"></div>
+    <div class="resize-xy" id="resize-xy-right-top" (mousedown)="startEditing($event, 'rt')"></div>
+    <div class="resize-xy" id="resize-xy-left-bottom" (mousedown)="startEditing($event, 'lb')"></div>
+    <div class="resize-xy" id="resize-xy-right-bottom" (mousedown)="startEditing($event, 'rb')"></div>
+    <div class="d-flex flex-column" id="window-bg"
+         [style.background-color]="bg"
+         [style.box-shadow]="'inset 0 ' + headerHeight + 'px 0 0 ' + color + (shadow?', 0 3px 0 ' + color + ', -10px 15px 0 rgba(0, 0, 0, 0.05)':'')">
+      <div class="d-flex justify-content-between align-items-center w-100" id="window-header-bg"
+           [style.height]="headerHeight+'px'"
+           (mousedown)="startEditing($event)"
+           (touchstart)="startEditing($event)"
+           (touchmove)="editPosition($event)"
+           (touchend)="stopEditing($event)">
+        <p id="window-header" [style.color]="whiteText?'white':'black'">{{title}}</p>
+        <div id="buttons" class="d-flex flex-row align-items-center">
+          <div #maximizeButton class="window-button maximize d-flex justify-content-center align-items-center"
+               (touchstart)="maximizeMinimize(false, $event)"
+               (click)="maximizeMinimize(false, $event)"
+               [style.background-color]="isMobile()?'var(--myYellow)':'rgba(0, 0, 0, 0.2)'"></div>
+          <div #closeButton class="window-button close d-flex justify-content-center align-items-center"
+               (touchstart)="close($event)"
+               (click)="close($event)"
+               [attr.data-balloon-pos]="isMobile()? 'down' : 'right'"
+               [style.background-color]="isMobile()?'var(--myRed)':'rgba(0, 0, 0, 0.2)'"></div>
+        </div>
       </div>
-    </div>
-    <div class="position-relative w-100 h-100">
-      <ng-scrollbar>
-        <ng-content></ng-content>
-      </ng-scrollbar>
+      <div class="position-relative w-100 h-100 overflow-hidden">
+        <ng-scrollbar *ngIf="!noScroll">
+          <ng-container *ngTemplateOutlet="content"></ng-container>
+        </ng-scrollbar>
+        <ng-container *ngIf="noScroll">
+          <ng-container *ngTemplateOutlet="content"></ng-container>
+        </ng-container>
+        <ng-template #content>
+          <ng-content></ng-content>
+        </ng-template>
+      </div>
     </div>
   </div>
 </div>

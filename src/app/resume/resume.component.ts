@@ -9,12 +9,18 @@ export class ResumeComponent {
   @ViewChild('resumeContent') resumeContent!: ElementRef;
   @Output() shifted: EventEmitter<number> = new EventEmitter();
   vertical = false;
+  resizeObserver: any;
 
   constructor() {
   }
 
   ngAfterViewInit(): void {
-    new ResizeObserver(() => this.checkIfVertical()).observe(this.resumeContent.nativeElement);
+    this.resizeObserver = new ResizeObserver(() => this.checkIfVertical());
+    this.resizeObserver.observe(this.resumeContent.nativeElement);
+  }
+
+  ngOnDestroy() {
+    this.resizeObserver.unobserve(this.resumeContent.nativeElement);
   }
 
   checkIfVertical() {

@@ -37,7 +37,7 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    if (Utils.mobile) {
+    if (Utils.isMobile) {
       this.popForce = this.popForceMobile;
     }
     // this.getFPS();
@@ -199,7 +199,7 @@ export class ConfettiComponent implements OnInit, AfterViewInit {
   updateParticleRender(particle: Particle) {
     fastdom.mutate(() => {
       if (!particle.div) return;
-      particle.div.style.transform = 'translate(' + particle.posX + 'px, ' + particle.posY + 'px) rotate(' + particle.rotation + 'deg)  scale(' + Utils.viewWidth * (Utils.mobile ? 2 : 1) / 1500 + ')';
+      particle.div.style.transform = 'translate(' + particle.posX + 'px, ' + particle.posY + 'px) rotate(' + particle.rotation + 'deg)  scale(' + Utils.viewWidth * (Utils.isMobile ? 2 : 1) / 1500 + ')';
       particle.div.style.opacity = String(particle.opacity);
     })
   }

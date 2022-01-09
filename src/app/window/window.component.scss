@@ -4,6 +4,8 @@
   left: 0;
   z-index: 100;
   opacity: 0;
+  cursor: initial;
+  transition: opacity 0.5s;
 }
 
 #window-bg {
@@ -11,7 +13,6 @@
   font-size: 1.2em;
   height: 100%;
   width: 100%;
-  overflow: hidden;
 }
 
 #window-header {
@@ -41,15 +42,15 @@
   width: 5px;
   height: 100%;
   z-index: 1;
+
   &#resize-x-left {
     left: 0;
   }
+
   &#resize-x-right {
     right: 0;
   }
 }
-
-
 
 .resize-y {
   cursor: ns-resize;
@@ -58,9 +59,11 @@
   height: 5px;
   width: 100%;
   z-index: 1;
+
   &#resize-y-top {
     top: 0;
   }
+
   &#resize-y-bottom {
     bottom: 0;
   }
@@ -71,26 +74,34 @@
   width: 10px;
   height: 10px;
   z-index: 2;
+
   &#resize-xy-left-top {
     cursor: nwse-resize;
     left: 0;
     top: 0;
   }
+
   &#resize-xy-right-top {
     cursor: nesw-resize;
     right: 0;
     top: 0;
   }
+
   &#resize-xy-left-bottom {
     cursor: nesw-resize;
     left: 0;
     bottom: 0;
   }
+
   &#resize-xy-right-bottom {
     cursor: nwse-resize;
     right: 0;
     bottom: 0;
   }
+}
+
+#buttons {
+  z-index: 100;
 }
 
 
@@ -102,18 +113,37 @@
   height: 26px;
   border-radius: 2px;
   margin-right: 2px;
-  filter: brightness(0.9);
-  &:hover {
-    filter: brightness(1.1);
-  }
+  border: 1px solid rgba(0, 0, 0, 0.1);
 
-  &.close {
-    background-color: var(--myRed) !important;
-    border: 1px solid #E14640;
-  }
-
-  &.maximize {
+  &.maximize:hover {
     background-color: var(--myYellow) !important;
-    border: 1px solid #DFA123;
+  }
+
+  &.close:hover {
+    background-color: var(--myRed) !important;
   }
 }
+
+[aria-label][data-balloon-pos='up']:before, [aria-label][data-balloon-pos='up-left']:before {
+  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.2)) drop-shadow(0 -1px 0 #fff);
+}
+
+[aria-label][data-balloon-pos='down']:before {
+  filter: drop-shadow(0 -2px 1px rgba(0, 0, 0, 0.2)) drop-shadow(0 1px 0 #fff);
+}
+
+[aria-label][data-balloon-pos='right']:before {
+  filter: drop-shadow(-2px 0 1px rgba(0, 0, 0, 0.2)) drop-shadow(1px 0 0 #fff);
+}
+
+[aria-label][data-balloon-pos]:before {
+  --balloon-color: white;
+  z-index: 1000;
+}
+
+[aria-label][data-balloon-pos]:after {
+  color: black;
+  background: white;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+}
+

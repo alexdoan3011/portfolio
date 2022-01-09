@@ -25,21 +25,14 @@ export class GreetingComponent implements AfterViewInit {
 
   @HostListener('mousewheel', ['$event'])
   scrollWheel(event?: WheelEvent) {
-    if (event) {
-      if (event.deltaY > 0) {
-        if (!this.scrollAllowed) return;
-        if (!this.welcomeAnimated) {
-          this.displayText = false;
-          this.textTransformDuration = 0;
-        }
-        this.hammer.destroy();
-        this.cleanUp();
-        return;
-      }
-    } else {
-      this.hammer.destroy();
-      this.cleanUp();
+    if (event && event.deltaY < 0) return;
+    if (!this.welcomeAnimated) {
+      this.displayText = false;
+      this.textTransformDuration = 0;
     }
+    this.hammer.destroy();
+    this.cleanUp();
+    return;
   }
 
   private welcomeAnimated = false;
@@ -48,7 +41,7 @@ export class GreetingComponent implements AfterViewInit {
   sweep = false;
   animated: HTMLElement[] = [];
   hammer: any;
-  scrollAllowed = true;
+  elementSent = false;
 
 
   constructor() {
@@ -64,6 +57,7 @@ export class GreetingComponent implements AfterViewInit {
   cleanUp() {
     if (this.sweep) return;
     this.sweep = true;
+    this.cleaningUp.emit();
     this.greetingBgComponent.stopAnimations();
     Anime.remove(this.animated);
     this.greetingBgComponent.cleanUp();
@@ -82,10 +76,15 @@ export class GreetingComponent implements AfterViewInit {
         Anime({
           targets: this.welcome.nativeElement,
           top: ['50%', '10%'],
-          left: ['50%', '50%'],
-          scale: Utils.mobile ? 1 : 0.5,
+          scale: Utils.isMobile ? 1 : 0.5,
           easing: 'easeInOutSine',
-          duration: this.textTransformDuration,
+          duration: this.textTransformDuration * 0.9,
+          complete: () => {
+            this.doneTransforming.emit(this.welcome.nativeElement);
+            if (!this.welcomeAnimated) {
+              this.cleanedUp.emit();
+            }
+          }
         })
       }
     })
@@ -124,15 +123,7 @@ export class GreetingComponent implements AfterViewInit {
         .duration(this.textTransformDuration)
         .attrTween("d", function () {
           return interpolator;
-        }).end().then(() => {
-        if (i == secondTextPath.length - 1) {
-          this.doneTransforming.emit(this.welcome.nativeElement);
-          if (!this.welcomeAnimated) {
-            this.cleaningUp.emit();
-            this.cleanedUp.emit();
-          }
-        }
-      })
+        }).end();
       Anime({
         targets: firstText[i].node(),
         fill: i > 2 ? '#92374D' : '#FFFFFF',
@@ -166,8 +157,6 @@ export class GreetingComponent implements AfterViewInit {
   }
 
   animateWelcome() {
-    this.cleaningUp.emit();
-    this.scrollAllowed = true;
     this.welcomeAnimated = true;
     this.animated.push(this.welcome.nativeElement);
     Anime({
@@ -193,7 +182,7 @@ export class GreetingComponent implements AfterViewInit {
         targets: toAnimate,
         opacity: [0, 1],
         duration: 50,
-        delay: Anime.stagger(100, {start: 1000}),
+        delay: Anime.stagger(20, {start: 1000}),
         complete: () => {
           window.setTimeout(() => {
             if (comma == null) return;

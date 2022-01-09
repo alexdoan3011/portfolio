@@ -1,23 +1,28 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, Output, ViewChild} from '@angular/core';
 
 @Component({
   selector: 'app-about-me',
   templateUrl: './about-me.component.html',
   styleUrls: ['./about-me.component.scss']
 })
-export class AboutMeComponent implements AfterViewInit {
+export class AboutMeComponent implements AfterViewInit, OnDestroy {
 
-  @Input() content: string[] = [];
   @Output() toBottom: EventEmitter<any> = new EventEmitter();
   @ViewChild('aboutMeContent') aboutMeContent!: ElementRef;
   @Output() shifted: EventEmitter<number> = new EventEmitter();
   vertical = false;
+  resizeObserver: any;
 
   constructor() {
   }
 
   ngAfterViewInit(): void {
-    new ResizeObserver(() => this.checkIfVertical()).observe(this.aboutMeContent.nativeElement);
+    this.resizeObserver = new ResizeObserver(() => this.checkIfVertical());
+    this.resizeObserver.observe(this.aboutMeContent.nativeElement);
+  }
+
+  ngOnDestroy() {
+    this.resizeObserver.unobserve(this.aboutMeContent.nativeElement);
   }
 
   checkIfVertical() {

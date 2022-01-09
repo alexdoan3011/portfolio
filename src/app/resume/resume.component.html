@@ -1,16 +1,17 @@
-<div #resumeContent id="resume-content" class="d-flex d-block overflow-hidden p-2 w-100 h-100" [ngClass]="vertical?('flex-column'):('flex-row')">
+<div #resumeContent id="resume-content" class="d-flex flex-column d-block overflow-hidden p-2 w-100 h-100"
+     [class.flex-column]="vertical">
   <div [class.equal-width]="!vertical">
     <h2>EDUCATION</h2>
     <div class="mx-4">
       <div>
-        <div class="item-header">ADVANCED DIPLOMA IN COMPUTER SCIENCE</div>
+        <div class="item-header">Advanced Diploma in Computer Science</div>
         <div class="item-content">
           <p><span class="date">09/2018 - 12/2021</span><br><i>Algonquin College</i></p>
           <p>Graduated with honours<br>GPA: 4.0</p>
         </div>
       </div>
       <div>
-        <div class="item-header">BACHELOR OF ENGINEERING</div>
+        <div class="item-header">Bachelor of Engineering</div>
         <div class="item-content">
           <p><span class="date">09/2012 - 10/2016</span><br><i>Hanoi University of Mining & Geology</i></p>
         </div>
@@ -19,14 +20,14 @@
     <h2>PROFESSIONAL SKILLS</h2>
     <div class="mx-4">
       <div>
-        <div class="item-header">LANGUAGES</div>
+        <div class="item-header">Languages</div>
         <div class="item-content">
           <p>Java<br>C/C++/C#<br>HTML5/CSS<br>PHP<br>JavaScript<br>TypeScript<br>
             jQuery</p>
         </div>
       </div>
       <div>
-        <div class="item-header">TECHNOLOGIES</div>
+        <div class="item-header">Technologies</div>
         <div class="item-content">
           <p>• Front-End and Back-End Developing technologies (HTML5/CSS, React,
             jQuery, AJAX, MySQL, MongoDB, ServiceNow, Angular, ASP.NET, Azure),
@@ -46,7 +47,7 @@
     <h2>PROFESSIONAL EXPERIENCE</h2>
     <div class="mx-4">
       <div>
-        <div class="item-header">PROJECT LEADER</div>
+        <div class="item-header">Project Leader</div>
         <div class="item-content">
           <p><span class="date">01/2021 - 12/2021</span><br><i>Algonquin College</i></p>
           <p>Leading the feature enrichment project of TearDownBay.com<br>
@@ -61,10 +62,11 @@
         </div>
       </div>
       <div>
-        <div class="item-header">CO-OP JUNIOR DEVELOPER</div>
+        <div class="item-header">Co-op Junior Developer</div>
         <div class="item-content">
           <p><span class="date">01/2020 - 08/2020</span><br><i>Payments Canada</i></p>
-          <p>1. Learning about Service Management process and taking over the production of Standard Operating Procedures
+          <p>1. Learning about Service Management process and taking over the production of Standard Operating
+            Procedures
             (SOPs) for each process<br>
             2. Review the Service Management Process Documents to learn the Payments Canada ITIL-based processes and
             update the documents<br>
@@ -78,7 +80,7 @@
         </div>
       </div>
       <div>
-        <div class="item-header">WEBSITE ADMINISTRATOR</div>
+        <div class="item-header">Website Administrator</div>
         <div class="item-content">
           <p><span class="date">06/2016 - 08/2018</span><br><i>ThietBi247.vn</i></p>
           <p>• Designed the visual of the website during its conception<br>
@@ -86,6 +88,8 @@
             • Search engine optimization, conducted promotions</p>
         </div>
       </div>
+      <div class="d-flex align-items-center justify-content-center"><a href="./assets/Resume.pdf" class="link my-2">Download
+        my resume here</a></div>
     </div>
   </div>
 </div>

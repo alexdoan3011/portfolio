@@ -1,0 +1,31 @@
+<div id="nav-wrapper" class="d-flex align-items-center justify-content-center flex-wrap"
+     [style.height]="numRow>2?'auto':getViewportHeight()"
+     [class.flex-column]="numRow>2">
+  <app-navigation-card (clicked)="openApp.emit('about me')"
+                       [header]="'Get to know me?'"
+                       [bgColor]="'myTeal'"
+                       [gradient]="false"
+                       [top] = "true"
+                       [rowDisplay]="numRow>2"
+                       [shortDescription]="'Quick peek at who I am and my expertise.'"
+                       [imgUrl]="'./assets/svg/aboutMeLink.svg'"
+                       [imgScale]="0.7"></app-navigation-card>
+  <app-navigation-card (clicked)="openApp.emit('my resume')"
+                       [header]="'See my resume?'"
+                       [shortDescription]="'You can view and download my resume here.'"
+                       [rowDisplay]="numRow>2"
+                       [imgUrl]="'./assets/img/resume.jpg'"></app-navigation-card>
+  <app-navigation-card (clicked)="openApp.emit('ai racer')"
+                       [header]="'AI Racer (in development)'"
+                       [imgUrl]="'./assets/img/aiRacer.jpg'"
+                       [rowDisplay]="numRow>2"
+                       [shortDescription]="'Machine-Learning-powered self driving shenanigans in Unity... but the self-driving is not here yet. Open this app on your personal computer.'"></app-navigation-card>
+  <app-navigation-card (clicked)="openApp.emit('clock')"
+                       [header]="'Clock and Astronomy'"
+                       [imgUrl]="'./assets/img/clock.jpg'"
+                       [rowDisplay]="numRow>2"
+                       [shortDescription]="'Simple clock app that shows Astronomy Picture of the Day from NASA\'s API.'"></app-navigation-card>
+  <app-navigation-card [header]="'TBD'"
+                       [rowDisplay]="numRow>2"
+                       [shortDescription]="'I\'m working on this app... come back in a bit?'"></app-navigation-card>
+</div>

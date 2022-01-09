@@ -8,14 +8,14 @@ $wel-width: 70vw;
   display: block;
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: 52%;
   font-size: $hello-size;
   transform: translateX(-50%) translateY(-50%);
 }
 
 #and {
   position: absolute;
-  top: 30vh;
+  top: calc(30vh - 10vw);
   left: 50%;
   transform: translateX(-50%) translateY(100vh);
   width: $and-width;

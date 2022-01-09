@@ -18,7 +18,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    window.onresize = () => Utils.updateViewSize();
+    window.onresize = () => {
+      Utils.windowResize.emit();
+      Utils.updateViewSize();
+    }
     window.onmousemove = (e) => Utils.updateMousePos(e);
   }
 

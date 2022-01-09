@@ -1,12 +1,15 @@
 declare var require: any;
+import {EventEmitter} from "@angular/core";
 export default class Utils {
 
   static viewWidth = window.innerWidth;
   static viewHeight = window.innerHeight;
-  static mobile = Utils.viewHeight > Utils.viewWidth;
+  static isMobile = Utils.viewHeight > Utils.viewWidth;
   static mouseX = 0;
   static mouseY = 0;
   private static randomMC: any;
+  static isMobileSwitch: EventEmitter<boolean> = new EventEmitter();
+  static windowResize: EventEmitter<any> = new EventEmitter();
 
   constructor() {
   }
@@ -22,7 +25,10 @@ export default class Utils {
     window.requestAnimationFrame(() => {
       Utils.viewWidth = window.innerWidth;
       Utils.viewHeight = window.innerHeight;
-      Utils.mobile = Utils.viewHeight > Utils.viewWidth;
+      if (Utils.isMobile!== Utils.viewHeight > Utils.viewWidth) {
+        Utils.isMobile = Utils.viewHeight > Utils.viewWidth;
+        Utils.isMobileSwitch.emit(Utils.isMobile);
+      }
     })
   }
 

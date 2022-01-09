@@ -4,7 +4,7 @@ import {
   OnInit,
   QueryList,
   ViewChild,
-  ViewChildren,
+  ViewChildren, ViewContainerRef,
 } from '@angular/core';
 import Utils from "../utils";
 import Anime from 'animejs';
@@ -14,6 +14,10 @@ import contentJson from "../../assets/content.json";
 import {NgScrollbar} from "ngx-scrollbar";
 import {ContactMeComponent} from "../contact-me/contact-me.component";
 import {WindowComponent} from "../window/window.component";
+import {AboutMeComponent} from "../about-me/about-me.component";
+import {ComponentType} from "@angular/cdk/overlay";
+import {ResumeComponent} from "../resume/resume.component";
+import {IframeWrapperComponent} from "../iframe-wrapper/iframe-wrapper.component";
 
 
 @Component({
@@ -23,8 +27,9 @@ import {WindowComponent} from "../window/window.component";
 })
 export class HomeComponent implements OnInit {
   @ViewChildren(BorderAnimateComponent) borderAnimateComponents!: QueryList<BorderAnimateComponent>;
-  @ViewChildren(WindowComponent) windowComponent!: QueryList<WindowComponent>;
   @ViewChild('windowContainer') windowContainer!: ElementRef;
+  @ViewChild('insertWindowHere', {read: ViewContainerRef, static: true}) insertWindowHere!: ViewContainerRef;
+  @ViewChild('introductionText') introductionText!: ElementRef;
   @ViewChild(NgScrollbar) scrollRef!: NgScrollbar;
   @ViewChild('fullScreenContainer') fullScreenContainer!: ElementRef;
   @ViewChild(ContactMeComponent) contactMeComponent?: ContactMeComponent;
@@ -34,21 +39,21 @@ export class HomeComponent implements OnInit {
   @ViewChild('greetingContainer') greetingContainer!: ElementRef;
   @ViewChild('scroll') scroll!: ElementRef;
   @ViewChild('icon') icon!: ElementRef;
+  windows: WindowComponent[] = [];
+  displayHint = true;
   displayGreeting = true;
-  greetingInteract = this.displayGreeting;
   animated: HTMLElement[] = [];
   contentJson: Content = contentJson;
-  allowScroll = !this.displayGreeting;
   avatarAnimated = false;
   hideScrollTimer: any;
   toShow = false;
   disableInteractions = false;
-  scrollTop = 0;
   yPos = [40, 80, 150];
   yPosMobile = [40, 80, 150];
-  zIndexes = [1, 2, 3];
   maximized = false;
-  beforeMaximize: any;
+  beforeMaximize = 0;
+  editingWindow = false;
+  windowHint = false;
 
   constructor() {
   }
@@ -63,17 +68,11 @@ export class HomeComponent implements OnInit {
         bac.startAnimating();
       })
     }
+    this.animated.push(this.icon.nativeElement);
+    this.scrollDownHint();
     this.showScrollBarIfHovered();
     this.scrollRef.scrolled.subscribe((e: any) => {
       window.requestAnimationFrame(() => {
-        if (!this.maximized)
-          this.scrollTop = -this.wrapper.nativeElement.getBoundingClientRect().top;
-        this.yPos.forEach((y, index) => {
-          if ((this.scrollTop / Utils.viewHeight + 0.5) * 100 >= y) {
-            if (!this.windowComponent.get((index))!.firstOpened)
-              this.windowComponent.get(index)!.open();
-          }
-        })
         this.showScrollBar();
         this.borderAnimateComponents.forEach((bac) => {
           bac.updateTopOffset();
@@ -89,36 +88,95 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  renderWindow(content: ComponentType<any>, option?: { title?: string, height?: number, width?: number, y?: number, source?: string, noScroll?: boolean, putIt?: 'left' | 'right' | 'mid' | 'randomMid', shifted?: 'height' | 'maxHeight' }) {
+    const newWinContent = this.insertWindowHere.createComponent(content);
+    const newWin = this.insertWindowHere.createComponent(WindowComponent, {
+      index: this.windows.length === 0 ? undefined : this.windows.length,
+      injector: undefined,
+      ngModuleRef: undefined,
+      projectableNodes: [[newWinContent.location.nativeElement]]
+    });
+    this.windows.push(newWin.instance);
+    if (!this.windowHint) {
+      this.windowHint = true;
+      newWin.instance.hint = true;
+    }
+    newWin.instance.width = this.isMobile() ? 90 : 0;
+    newWin.instance.zIndex = this.windows.length;
+    newWin.instance.width = this.isMobile() ? 90 : 60;
+    newWin.instance.interacted.subscribe((event) => this.setZIndexes(event));
+    newWin.instance.editing.subscribe((event) => this.editingWindow = event);
+    newWin.instance.maximizeChange.subscribe((event) => this.windowMaximizeChange(event));
+    if (content === AboutMeComponent) {
+      newWinContent.instance.toBottom.subscribe(() => {
+        if (this.maximized) {
+          this.windows.forEach((win) => {
+            if (win.maximized) {
+              win.maximizeMinimize(false);
+            }
+          })
+          const resizeObserver = new ResizeObserver(() => {
+            this.scrollToBottom();
+            resizeObserver.unobserve(this.wrapper.nativeElement);
+          });
+          resizeObserver.observe(this.wrapper.nativeElement);
+        } else {
+          this.scrollToBottom();
+        }
+      });
+    } else if (content === IframeWrapperComponent) {
+      newWin.instance.heightChange.subscribe((event) => newWinContent.instance.iframeHeight = event);
+    }
+    newWin.instance.open();
+    if (!option) return;
+    if (option.source) newWinContent.instance.source = option.source;
+    newWin.instance.y = -this.wrapper.nativeElement.getBoundingClientRect().top / Utils.viewHeight * 100 + (option.y ? option.y : Utils.random30Percent(20));
+    newWin.instance.noScroll = option.noScroll ? option.noScroll : false;
+    newWin.instance.width = option.width ? option.width : 0;
+    newWin.instance.title = option.title ? option.title : '';
+    newWin.instance.height = option.height ? option.height : 0;
+    newWin.instance.putIt = option.putIt ? option.putIt : 'mid';
+    newWin.instance.closed.subscribe((event) => this.closeWindow(event));
+    if (option && option.shifted === "height") {
+      newWinContent.instance.shifted.subscribe((event: number) => newWin.instance.setHeight(event))
+    } else if (option && option.shifted === "maxHeight") {
+      newWinContent.instance.shifted.subscribe((event: number) => newWin.instance.setMaxHeight(event))
+    }
+  }
+
   windowMaximizeChange(window: WindowComponent) {
-    if (window.maximized)
-      this.fullScreenContainer.nativeElement.appendChild(window.elementRef.nativeElement);
-    else
-      this.windowContainer.nativeElement.appendChild(window.elementRef.nativeElement);
+    const scrollTop = -this.wrapper.nativeElement.getBoundingClientRect().top;
+    if (this.maximized) {
+      const resizeObserver = new ResizeObserver(() => {
+        this.scrollRef.scrollTo({left: 0, top: this.beforeMaximize, duration: 0});
+        resizeObserver.unobserve(this.wrapper.nativeElement);
+      });
+      resizeObserver.observe(this.wrapper.nativeElement);
+      this.maximized = false;
+      window.minimize(scrollTop);
+    } else {
+      this.beforeMaximize = scrollTop;
+      this.scrollRef.scrollTo({left: 0, top: 0, duration: 0});
+      this.maximized = true;
+      window.maximize();
+    }
     this.maximized = window.maximized;
   }
 
   setZIndexes(window: WindowComponent) {
-    this.windowComponent.forEach((win, index) => {
-      if (!win.opened) {
-        this.zIndexes[index] = 1;
-      } else if (window === win) {
-        if (this.zIndexes[index] === this.zIndexes.length) return;
-        this.zIndexes[index] = this.zIndexes.length;
-        this.zIndexes.forEach((zIndex, i) => {
-          if (i !== index && this.zIndexes[i] > 1) {
-            this.zIndexes[i]--;
-          }
-        })
+    this.windows.forEach((win) => {
+      if (window === win) {
+        if (win.zIndex === this.windows.length) return;
+        win.zIndex = this.windows.length;
+      } else if (win.zIndex > 1) {
+        win.zIndex--;
       }
     })
   }
 
-  openWindow(name: string) {
-    this.windowComponent.forEach((win) => {
-      if (win.title.toLowerCase() === name.toLowerCase()) {
-        win.open();
-      }
-    })
+  closeWindow(window: WindowComponent) {
+    const index = this.windows.indexOf(window);
+    this.windows.splice(index, 1);
   }
 
   scrollToBottom() {
@@ -130,13 +188,6 @@ export class HomeComponent implements OnInit {
     window.setTimeout(() => {
       this.disableInteractions = false;
     }, scrollHeight / 4);
-    if (this.maximized) {
-      this.windowComponent.forEach((win) => {
-        if (win.maximized) {
-          win.maximizeMinimize(false);
-        }
-      })
-    }
   }
 
   showScrollBarIfHovered() {
@@ -186,21 +237,13 @@ export class HomeComponent implements OnInit {
   }
 
   isMobile() {
-    return Utils.mobile;
+    return Utils.isMobile;
   }
 
   scrollDownHint() {
     if (!this.greetingContainer) return;
-    if (Utils.mobile) {
-      Anime({
-        targets: this.greetingContainer.nativeElement,
-        keyframes:
-          [
-            {translateY: '-2vh', duration: 500, easing: 'easeOutSine'},
-            {translateY: 0, duration: 500, easing: 'easeOutBounce'}
-          ],
-        delay: 5000,
-      })
+    if (!this.icon) return;
+    if (Utils.isMobile) {
       Anime({
         targets: this.icon.nativeElement,
         keyframes:
@@ -243,19 +286,48 @@ export class HomeComponent implements OnInit {
   setNamePos(e: HTMLElement) {
     let div = e.cloneNode(true) as HTMLElement;
     e.remove();
-    div.style.transform = 'scale(1) translateX(-50%) translateY(-50%)';
-    const top = Number(div.style.top.match(/[\d.]*/gm)![0]) * 2 * Utils.viewHeight / 100;
-    div.style.top = '50%';
-    this.nameContainer.nativeElement.style.height = top / Utils.viewHeight * 100 + 'vh';
-    div.style.zIndex = '100';
+    Utils.isMobileSwitch.subscribe((isMobile) => {
+      div.style.transform = (isMobile ? 'scale(1)' : 'scale(0.5)') + ' translateX(-50%) translateY(-50%)';
+    })
     this.nameContainer.nativeElement.appendChild(div);
+    this.setUpDisplay();
   }
 
-  allowScrolling() {
-    this.allowScroll = true;
-    this.animated.push(this.greetingContainer.nativeElement);
-    this.animated.push(this.icon.nativeElement);
-    this.scrollDownHint();
+  openApp(appName: string) {
+    if (appName.toLowerCase() === 'about me') {
+      this.renderWindow(AboutMeComponent, {
+        title: 'About me',
+        width: this.isMobile() ? 90 : 50,
+        putIt: this.isMobile() ? "mid" : "randomMid",
+        shifted: 'height'
+      })
+    } else if (appName.toLowerCase() === 'my resume') {
+      this.renderWindow(ResumeComponent, {
+        title: 'My resume',
+        width: this.isMobile() ? 90 : 70,
+        putIt: this.isMobile() ? "mid" : "randomMid",
+        height: 70,
+        shifted: 'maxHeight'
+      })
+    } else if (appName.toLowerCase() === 'ai racer') {
+      this.renderWindow(IframeWrapperComponent, {
+        title: 'AI Racer (In development)',
+        width: this.isMobile() ? 90 : 70,
+        putIt: this.isMobile() ? "mid" : "randomMid",
+        height: 70,
+        source: './projects/ai-racer',
+        noScroll: true
+      })
+    } else if (appName.toLowerCase() === 'clock') {
+      this.renderWindow(IframeWrapperComponent, {
+        title: 'Astronomy Clock',
+        width: this.isMobile() ? 90 : 70,
+        putIt: this.isMobile() ? "mid" : "randomMid",
+        height: 70,
+        source: './projects/clock',
+        noScroll: true
+      })
+    }
   }
 
   setUpDisplay() {
@@ -264,7 +336,6 @@ export class HomeComponent implements OnInit {
       bac.updateTopOffset();
       bac.startAnimating();
     })
-    this.greetingInteract = false;
     const btn = document.getElementById('old-btn')!
     Anime({
       targets: btn,

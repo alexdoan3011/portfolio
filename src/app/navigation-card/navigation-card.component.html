@@ -1,0 +1,18 @@
+<div class="nav-card position-relative"
+     [style.margin]="rowDisplay?(top?'50px 0 50px 0':'0 0 50px 0'):'0 50px 0 50px'"
+     [style.width]="rowDisplay?'90vw':'250px'"
+     [style.height]="rowDisplay?'30vh':'350px'"
+     (click)="clicked.emit()">
+  <div class="bg w-100 h-100 position-absolute top-0 start-0"
+       [style.filter]="rowDisplay?'brightness(0.5)':'none'"
+       [style.background-image]="gradient?'linear-gradient('+bgColor+', black)':'linear-gradient('+bgColor+', '+bgColor+')'"></div>
+  <img *ngIf="imgUrl!==''" class="position-absolute top-50 start-50"
+       [ngClass]="rowDisplay?'w-100':'h-100'" [src]="imgUrl" alt="Open app"
+       [style.transform]="'translateX(-50%) translateY(-50%) scale('+imgScale+')'"
+       [style.filter]="rowDisplay?'brightness(0.5)':'none'"/>
+  <div class="position-absolute top-0 start-0 p-3 content w-100">
+    <div class="header">{{header}}</div>
+    <p class="short-description"
+       [style]="rowDisplay?'opacity: 1!important; transform: none!important;':''">{{shortDescription}}</p>
+  </div>
+</div>

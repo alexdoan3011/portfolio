@@ -46,3 +46,9 @@
     background: linear-gradient(to bottom, var(--myLightPink), rgba(0,0,0,0));
   }
 }
+
+@media (orientation: portrait) {
+  #resume-content {
+    font-size: 0.9rem;
+  }
+}

@@ -1,0 +1,42 @@
+.nav-card {
+  cursor: pointer;
+  border-radius: 15px;
+  overflow: hidden;
+  .bg {
+    transition: 0.5s;
+  }
+
+  .short-description {
+    opacity: 0;
+    transform: translateY(20%);
+    transition: 0.5s;
+  }
+
+  &:hover .short-description {
+    opacity: 1!important;
+    transform: translateY(0)!important;
+  }
+
+  &:hover img {
+    filter: brightness(0.5)!important;
+  }
+
+  &:hover .bg {
+    filter: brightness(0.5)!important;
+  }
+}
+
+img {
+  transition: 0.5s;
+}
+
+.content {
+  white-space: normal;
+}
+
+.header {
+  font-family: 'Ramaraja', serif;
+  font-size: 2rem;
+  white-space: normal;
+  line-height: 80%;
+}

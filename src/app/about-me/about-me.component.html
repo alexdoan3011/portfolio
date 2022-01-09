@@ -1,12 +1,12 @@
-<div #aboutMeContent id="about-me-content" class="d-flex d-block overflow-hidden" [ngClass]="vertical?('flex-column'):('flex-row')">
+<div #aboutMeContent id="about-me-content" class="d-flex d-block overflow-hidden" [class.flex-column]="vertical">
   <div id="about-me-text">
-    <p *ngFor="let p of content" [innerHTML]="p"></p>
+    <p>Hi! My name is Van Nam "Alex" Doan. I'm currently based in Ontario, Canada.</p>
     <p>My main focus is creating responsive, fast and smooth interactive digital experiences. I am looking for new opportunities. Don't hesitate to <span class="link lk-light" (click)="toBottom.emit()">contact me</span> if you've got an offer!</p>
     <div>Some techs I've been working with recently:</div>
     <div class="d-flex flex-column align-items-center">
       <div class="d-flex flex-row w-100">
         <div class="w-25"><span class="triangle">&#9658;</span>Angular</div>
-        <div class="w-25"><span class="triangle">&#9658;</span>ReactJS</div>
+        <div class="w-25"><span class="triangle">&#9658;</span>React</div>
         <div class="w-25"><span class="triangle">&#9658;</span>ASP.NET</div>
       </div>
       <div class="d-flex flex-row w-100">
@@ -26,8 +26,8 @@
       </div>
     </div>
   </div>
-  <div id="about-me-img-bg" class="d-flex align-content-center justify-content-center">
-    <div class="no-select about-me-img-container position-relative p-0" (click)="toBottom.emit()">
+  <div id="about-me-img-bg" class="d-flex align-items-center justify-content-center">
+    <div class="no-select about-me-img-container position-relative p-0">
       <img class="about-me-img-bg" src="./assets/img/aboutMeBg.jpg" alt="about me background">
       <img class="about-me-img office" src="./assets/img/aboutMeOffice.jpg" alt="about me background office">
       <img class="about-me-img" src="./assets/img/aboutMe.png" alt="about me">

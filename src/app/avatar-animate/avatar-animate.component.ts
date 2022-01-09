@@ -168,7 +168,7 @@ export class AvatarAnimateComponent implements OnInit, AfterViewInit {
           originalTransform = this.getTransform(part);
         }
         newTransform = this.getTransform(part);
-        const mobileMultiplier = Utils.mobile ? 1.3 : 1;
+        const mobileMultiplier = Utils.isMobile ? 1.3 : 1;
         if (invert) {
           newTransform.x += (originalTransform.x + this.getMouseY() * multiplierX * mobileMultiplier - newTransform.x) / 10;
           newTransform.y += (originalTransform.y + this.getMouseX() * multiplierY * mobileMultiplier - newTransform.y) / 10;

@@ -28,7 +28,7 @@ export class ContactMeComponent implements AfterViewInit {
   }
 
   isMobile() {
-    return Utils.mobile;
+    return Utils.isMobile;
   }
 
   setPauseAnimation(paused: boolean) {

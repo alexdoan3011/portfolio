@@ -18,6 +18,8 @@ import { ProjectsComponent } from './projects/projects.component';
 import { AboutMeComponent } from './about-me/about-me.component';
 import { ResumeComponent } from './resume/resume.component';
 import { NavigationComponent } from './navigation/navigation.component';
+import { NavigationCardComponent } from './navigation-card/navigation-card.component';
+import { IframeWrapperComponent } from './iframe-wrapper/iframe-wrapper.component';
 
 @NgModule({
   declarations: [
@@ -35,6 +37,8 @@ import { NavigationComponent } from './navigation/navigation.component';
     AboutMeComponent,
     ResumeComponent,
     NavigationComponent,
+    NavigationCardComponent,
+    IframeWrapperComponent,
   ],
   imports: [
     AppRoutingModule,

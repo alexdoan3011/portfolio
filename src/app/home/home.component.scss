@@ -1,7 +1,8 @@
 $about-me-bg: var(--myDarkPurple);
+$intro-height: 40vh;
 
 #disable {
-  z-index: 10000 !important;
+  z-index: 10000!important;
 }
 
 #greetingContainer {
@@ -20,7 +21,7 @@ $about-me-bg: var(--myDarkPurple);
   position: relative;
   width: 100%;
   overflow: hidden;
-  z-index: 100;
+  z-index: 1;
   background: white;
 }
 
@@ -32,7 +33,7 @@ $about-me-bg: var(--myDarkPurple);
   position: absolute;
 }
 
-.scroll-bar {
+ng-scrollbar {
   --scrollbar-thumb-color: rgba(255, 255, 255, 0);
   --scrollbar-thumb-hover-color: rgba(255, 255, 255, 0.8);
   --scrollbar-size: 20px;
@@ -46,12 +47,14 @@ $about-me-bg: var(--myDarkPurple);
   top: 0;
   left: 0;
   width: 100%;
-  transform: scale(0.5);
+  //transform: scale(0.5);
+  pointer-events: none;
+  z-index: 1;
 }
 
 #intro {
   position: relative;
-  height: 40vh;
+  height: $intro-height;
   background: var(--myDark);
 }
 
@@ -73,7 +76,7 @@ $about-me-bg: var(--myDarkPurple);
   transform: translateX(50%);
 }
 
-#old button {
+#old-btn {
   display: inline-block;
   transform: scale(0);
   border: none;
@@ -94,36 +97,40 @@ $about-me-bg: var(--myDarkPurple);
 //[aria-label][data-balloon-pos]:after { color : black; background: white; }
 
 #introduction-text {
+  position: absolute;
   font-size: 2vmax;
   color: gray;
-  padding-left: 12vw;
-  margin-top: 70px;
+  top: calc(10vh + 5vw);
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-app-border-animate {
+#intro-border {
   position: absolute;
-  top: 99.9%;
+  top: $intro-height;
   left: 0;
-  width: 100%;
-  z-index: 0;
-}
-
-#second-half {
-  width: 100%;
-  height: 100vh;
-  background-color: var(--myPurple);
-}
-
-#window-container {
-  background-color: $about-me-bg;
   width: 100%;
   z-index: 1;
 }
 
-#about-me-border {
-  position: absolute;
-  bottom: 0;
+//#second-half {
+//  width: 100%;
+//  height: 100vh;
+//  background-color: var(--myPurple);
+//}
+
+#window-container {
+  background-color: $about-me-bg;
+  width: 100%;
+  z-index: 0;
 }
+
+//#about-me-border {
+//  position: absolute;
+//  bottom: 0;
+//  z-index: 0;
+//  width: 100%;
+//}
 
 #contact-me-container {
   position: sticky;
@@ -137,12 +144,11 @@ app-border-animate {
   pointer-events: auto;
 }
 
-#project-wrapper {
-  width: 100%;
-  background: $about-me-bg;
-}
-
 @media (orientation: portrait) {
+
+  #introduction-text {
+    top: calc(12vh + 7vw);
+  }
 
   #intro {
     height: 30vh;
@@ -151,10 +157,6 @@ app-border-animate {
   #icon {
     font-size: 20vw;
     opacity: 0;
-  }
-
-  #name-container {
-    transform: scale(1);
   }
 
   #old {

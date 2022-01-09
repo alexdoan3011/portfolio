@@ -5,11 +5,13 @@
   --myLightPink: #FFC0CB;
   --myLightGray: #B4B4B4;
   --myPurple: #774069;
-  --myDarkPurple: #4c3a69;
+  --myDarkPurple: #4C3A69;
   --myLightBlue: #4FACF7;
   --myPersianGreen: #009B87;
+  --myDarkGreen: #003300;
+  --myTeal: #39796B;
   --myYellow: #FFBD2E;
-  --myGreen: #3dce53;
+  --myGreen: #3DCE53;
   --myRed: #FF6057;
 }
 
@@ -42,12 +44,10 @@
 
 .no-interact {
   pointer-events: none;
-  cursor: not-allowed;
 }
 
 .interact {
-  pointer-events: auto;
-  cursor: pointer;
+  pointer-events: auto!important;
 }
 
 .pink-shadow {
@@ -64,6 +64,7 @@
   position: relative;
   color: white;
   font-weight: 600;
+  z-index: 1;
 
   &:hover {
     color: var(--myLightPink);
@@ -142,6 +143,6 @@ a.btn {
   box-shadow: 0 5px 0 darkgrey, -10px 15px 0px rgba(0, 0, 0, 0.05);
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Sacramento&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Ramaraja&family=Sacramento&display=swap');
 @import "~@fortawesome/fontawesome-free/css/all.css";
 @import "~balloon-css/src/balloon";
