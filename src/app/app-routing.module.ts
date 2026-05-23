@@ -4,12 +4,6 @@ import { NotFoundComponent } from './not-found/not-found.component';
 
 
 const routes: Routes = [
-  {path: 'old', component: NotFoundComponent, resolve: {
-      url: 'externalUrlRedirectResolver'
-    },
-    data: {
-      externalUrl: '/old'
-    }},
   {path: 'linkedIn', component: NotFoundComponent, resolve: {
       url: 'externalUrlRedirectResolver'
     },
@@ -21,12 +15,6 @@ const routes: Routes = [
     },
     data: {
       externalUrl: 'https://discordapp.com/users/350233804159320064/'
-    }},
-  {path: 'facebook', component: NotFoundComponent, resolve: {
-      url: 'externalUrlRedirectResolver'
-    },
-    data: {
-      externalUrl: 'https://www.facebook.com/alexdoan30/'
     }},
   {path: 'github', component: NotFoundComponent, resolve: {
       url: 'externalUrlRedirectResolver'

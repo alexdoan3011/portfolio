@@ -1,32 +1,34 @@
 import {
+  AfterViewInit,
   Component,
   ElementRef,
+  NgZone,
+  OnDestroy,
   OnInit,
-  QueryList,
+  Type,
   ViewChild,
   ViewChildren, ViewContainerRef,
 } from '@angular/core';
+import {fromEvent} from 'rxjs';
 import Utils from "../utils";
 import Anime from 'animejs';
-import {BorderAnimateComponent} from "../border-animate/border-animate.component";
 import {Content} from "../models/content";
 import contentJson from "../../assets/content.json";
 import {NgScrollbar} from "ngx-scrollbar";
 import {ContactMeComponent} from "../contact-me/contact-me.component";
 import {WindowComponent} from "../window/window.component";
 import {AboutMeComponent} from "../about-me/about-me.component";
-import {ComponentType} from "@angular/cdk/overlay";
 import {ResumeComponent} from "../resume/resume.component";
 import {IframeWrapperComponent} from "../iframe-wrapper/iframe-wrapper.component";
 
 
 @Component({
+  standalone: false,
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
-  @ViewChildren(BorderAnimateComponent) borderAnimateComponents!: QueryList<BorderAnimateComponent>;
+export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('windowContainer') windowContainer!: ElementRef;
   @ViewChild('insertWindowHere', {read: ViewContainerRef, static: true}) insertWindowHere!: ViewContainerRef;
   @ViewChild('introductionText') introductionText!: ElementRef;
@@ -54,31 +56,24 @@ export class HomeComponent implements OnInit {
   beforeMaximize = 0;
   editingWindow = false;
   windowHint = false;
+  persistentName?: HTMLElement;
+  private stopScrollBarHover = () => {};
 
-  constructor() {
+  constructor(private zone: NgZone) {
   }
 
   ngOnInit(): void {
   }
 
   ngAfterViewInit(): void {
-    if (!this.displayGreeting) {
-      this.borderAnimateComponents.forEach((bac) => {
-        bac.updateTopOffset();
-        bac.startAnimating();
-      })
-    }
     this.animated.push(this.icon.nativeElement);
     this.scrollDownHint();
-    this.showScrollBarIfHovered();
-    this.scrollRef.scrolled.subscribe((e: any) => {
+    this.bindScrollBarHover();
+    fromEvent<Event>(this.scrollRef.adapter.viewportElement, 'scroll').subscribe((e: any) => {
       window.requestAnimationFrame(() => {
         this.showScrollBar();
-        this.borderAnimateComponents.forEach((bac) => {
-          bac.updateTopOffset();
-        })
         if (!this.avatarAnimated && !this.maximized && this.contactMeComponent && e.target.scrollTop + Utils.viewHeight * 1.8 >= e.target.scrollHeight) {
-          if (!this.scrollRef.state.verticalDragging && !this.disableInteractions) {
+          if (!this.scrollRef.adapter.dragging() && !this.disableInteractions) {
             this.scrollToBottom();
           }
           this.avatarAnimated = true;
@@ -88,8 +83,12 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  renderWindow(content: ComponentType<any>, option?: { title?: string, height?: number, width?: number, y?: number, source?: string, noScroll?: boolean, putIt?: 'left' | 'right' | 'mid' | 'randomMid', shifted?: 'height' | 'maxHeight' }) {
-    const newWinContent = this.insertWindowHere.createComponent(content);
+  ngOnDestroy(): void {
+    this.stopScrollBarHover();
+  }
+
+  renderWindow(content: Type<any>, option?: { title?: string, height?: number, width?: number, y?: number, source?: string, noScroll?: boolean, putIt?: 'left' | 'right' | 'mid' | 'randomMid', shifted?: 'height' | 'maxHeight' }) {
+    const newWinContent = this.insertWindowHere.createComponent(content) as any;
     const newWin = this.insertWindowHere.createComponent(WindowComponent, {
       index: this.windows.length === 0 ? undefined : this.windows.length,
       injector: undefined,
@@ -185,22 +184,36 @@ export class HomeComponent implements OnInit {
 
   scrollToBottom() {
     const scrollHeight = this.wrapper.nativeElement.offsetHeight;
-    this.disableInteractions = true;
+    this.setDisableInteractions(true);
     this.scrollRef.scrollTo({left: 0, top: scrollHeight, duration: scrollHeight / 4}).then(() => {
-      this.disableInteractions = false;
+      this.setDisableInteractions(false);
     });
     window.setTimeout(() => {
-      this.disableInteractions = false;
+      this.setDisableInteractions(false);
     }, scrollHeight / 4);
   }
 
-  showScrollBarIfHovered() {
-    window.requestAnimationFrame(() => {
-      if (this.scrollRef && this.scrollRef.state.verticalHovered) {
-        this.showScrollBar();
-      }
-      this.showScrollBarIfHovered();
-    })
+  // The scroll handler (and ngx-scrollbar's scrollTo promise) run outside the Angular
+  // zone, so re-enter it to make sure the [hidden] binding on the overlay updates.
+  private setDisableInteractions(value: boolean) {
+    this.zone.run(() => this.disableInteractions = value);
+  }
+
+  bindScrollBarHover() {
+    this.zone.runOutsideAngular(() => {
+      const scrollElement = this.scrollRef.nativeElement;
+      const showIfAvailable = () => {
+        if (this.scrollRef && !this.scrollRef.adapter.dragging()) {
+          this.showScrollBar();
+        }
+      };
+      scrollElement.addEventListener('mouseenter', showIfAvailable);
+      scrollElement.addEventListener('mousemove', showIfAvailable);
+      this.stopScrollBarHover = () => {
+        scrollElement.removeEventListener('mouseenter', showIfAvailable);
+        scrollElement.removeEventListener('mousemove', showIfAvailable);
+      };
+    });
   }
 
   showScrollBar() {
@@ -288,13 +301,36 @@ export class HomeComponent implements OnInit {
   }
 
   setNamePos(e: HTMLElement) {
-    let div = e.cloneNode(true) as HTMLElement;
-    e.remove();
-    Utils.isMobileSwitch.subscribe((isMobile) => {
-      div.style.transform = (isMobile ? 'scale(1)' : 'scale(0.5)') + ' translateX(-50%) translateY(-50%)';
-    })
-    this.nameContainer.nativeElement.appendChild(div);
-    this.setUpDisplay();
+    const nameElement = e.cloneNode(true) as HTMLElement;
+    const clonedSvg = nameElement.querySelector('svg');
+
+    this.persistentName?.remove();
+    this.persistentName = nameElement;
+
+    // Mirror the responsive positioning of the original #welcome element so the
+    // clone reflows on resize the same way (viewport-relative units, not frozen px).
+    const scale = this.isMobile() ? 1 : 0.5;
+    nameElement.style.position = 'absolute';
+    nameElement.style.zIndex = '1';
+    nameElement.style.top = '10%';
+    nameElement.style.left = '50%';
+    nameElement.style.width = '0';
+    nameElement.style.height = '0';
+    nameElement.style.overflow = 'visible';
+    nameElement.style.transform = `translateX(-50%) translateY(-50%) scale(${scale})`;
+    nameElement.style.transformOrigin = 'center center';
+
+    if (clonedSvg) {
+      // Match the original #welcome svg sizing rules (width: 70vw, centered).
+      clonedSvg.style.position = 'absolute';
+      clonedSvg.style.width = '70vw';
+      clonedSvg.style.height = 'auto';
+      clonedSvg.style.top = '50%';
+      clonedSvg.style.left = '50%';
+      clonedSvg.style.transform = 'translateX(-50%) translateY(-50%)';
+    }
+    this.nameContainer.nativeElement.appendChild(nameElement);
+    Anime.remove(this.animated);
   }
 
   openApp(appName: string) {
@@ -315,7 +351,7 @@ export class HomeComponent implements OnInit {
       })
     } else if (appName.toLowerCase() === 'ai racer') {
       this.renderWindow(IframeWrapperComponent, {
-        title: 'AI Racer (In development)',
+        title: 'AI Racer',
         width: this.isMobile() ? 90 : 70,
         putIt: this.isMobile() ? "mid" : "randomMid",
         height: 70,
@@ -334,19 +370,4 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  setUpDisplay() {
-    Anime.remove(this.animated);
-    this.borderAnimateComponents.forEach((bac) => {
-      bac.updateTopOffset();
-      bac.startAnimating();
-    })
-    const btn = document.getElementById('old-btn')!
-    Anime({
-      targets: btn,
-      scale: [0, 1],
-      easing: 'easeOutBack',
-      duration: 500,
-      complete: () => btn.setAttribute('data-balloon-visible', '')
-    });
-  }
 }

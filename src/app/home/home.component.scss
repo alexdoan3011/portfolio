@@ -13,6 +13,17 @@ $intro-height: 40vh;
   width: 100%;
 }
 
+#fullScreenContainer {
+  z-index: 200;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+#wrapper {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 #greetingComponent {
   width: 100%;
 }
@@ -67,32 +78,6 @@ ng-scrollbar {
   display: block;
   color: white;
 }
-
-#old {
-  position: absolute;
-  bottom: 5vh;
-  right: 10%;
-  z-index: 500;
-  transform: translateX(50%);
-}
-
-#old-btn {
-  display: inline-block;
-  transform: scale(0);
-  border: none;
-  border-radius: 1000px;
-  color: white;
-  background-color: var(--myPersianGreen);
-  width: 70px;
-  height: 70px;
-  //--balloon-color: white;
-  font-size: 2em;
-
-  &:hover {
-    background-color: #00b7a1;
-  }
-}
-
 
 //[aria-label][data-balloon-pos]:after { color : black; background: white; }
 
@@ -157,10 +142,6 @@ ng-scrollbar {
   #icon {
     font-size: 20vw;
     opacity: 0;
-  }
-
-  #old {
-    right: 20%;
   }
 }
 

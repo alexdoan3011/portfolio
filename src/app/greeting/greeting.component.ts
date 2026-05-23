@@ -7,6 +7,7 @@ import fastdom from "fastdom";
 import {flubber} from "../services/requires.service";
 
 @Component({
+  standalone: false,
   selector: 'app-greeting',
   templateUrl: './greeting.component.html',
   styleUrls: ['./greeting.component.scss'],
@@ -23,9 +24,9 @@ export class GreetingComponent implements AfterViewInit {
   @Output() doneTransforming: EventEmitter<HTMLElement> = new EventEmitter();
   @Output() cleaningUp: EventEmitter<any> = new EventEmitter();
 
-  @HostListener('mousewheel', ['$event'])
-  scrollWheel(event?: WheelEvent) {
-    if (event && event.deltaY < 0) return;
+  @HostListener('wheel', ['$event'])
+  scrollWheel(event?: Event) {
+    if (event && (event as WheelEvent).deltaY < 0) return;
     if (!this.welcomeAnimated) {
       this.displayText = false;
       this.textTransformDuration = 0;
@@ -68,8 +69,8 @@ export class GreetingComponent implements AfterViewInit {
     })
     Anime({
       targets: this.welcome.nativeElement,
-      translateX: '50%',
-      translateY: '50%',
+      translateX: '-50%',
+      translateY: '-50%',
       easing: 'easeInOutSine',
       duration: this.textTransformDuration / 10,
       complete: () => {

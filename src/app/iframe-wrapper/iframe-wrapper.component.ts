@@ -2,6 +2,7 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
 
 @Component({
+  standalone: false,
   selector: 'app-iframe-wrapper',
   templateUrl: './iframe-wrapper.component.html',
   styleUrls: ['./iframe-wrapper.component.scss']

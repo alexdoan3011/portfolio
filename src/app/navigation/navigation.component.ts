@@ -8,6 +8,7 @@ import {
 import Utils from "../utils";
 
 @Component({
+  standalone: false,
   selector: 'app-navigation',
   templateUrl: './navigation.component.html',
   styleUrls: ['./navigation.component.scss']

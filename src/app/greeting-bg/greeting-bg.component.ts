@@ -1,9 +1,10 @@
-import {Component, ElementRef, EventEmitter, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, NgZone, Output, ViewChild} from '@angular/core';
 import Anime from "animejs";
 import Utils from "../utils"
 import {ConfettiComponent} from "../confetti/confetti.component";
 
 @Component({
+  standalone: false,
   selector: 'app-greeting-bg',
   templateUrl: './greeting-bg.component.html',
   styleUrls: ['./greeting-bg.component.scss']
@@ -34,7 +35,7 @@ export class GreetingBgComponent {
   cleanUpTime = 1000;
   private confettiPopped = false;
 
-  constructor() {
+  constructor(private zone: NgZone) {
   }
 
   stopAnimations() {
@@ -43,76 +44,80 @@ export class GreetingBgComponent {
 
   cleanUp() {
     if (this.sweep) return;
-    this.sweep = true;
-    this.confetti.cleanUp();
-    Anime.remove(this.animated);
-    this.vfxRight.nativeElement.style.opacity = 0;
-    this.vfxLeft.nativeElement.style.opacity = 0;
-    const left = [this.trumpetLeft.nativeElement, this.popperLeft.nativeElement];
-    left.forEach(x => x.style.transformOrigin = 'left bottom');
-    const right = [this.trumpetRight.nativeElement, this.popperRight.nativeElement];
-    right.forEach(x => x.style.transformOrigin = 'right bottom');
-    Anime({
-      targets: left,
-      rotate: 45,
-      translateY: '-50%',
-      duration: this.cleanUpTime,
-    })
-    Anime({
-      targets: right,
-      rotate: -45,
-      translateY: '-50%',
-      duration: this.cleanUpTime,
-    })
-    Anime({
-      targets: this.rainbow.nativeElement,
-      opacity: 0,
-      duration: this.cleanUpTime,
-    })
-    Anime({
-      targets: [this.cloud1.nativeElement, this.cloud2.nativeElement, this.sun.nativeElement],
-      translateX: '100%',
-      easing: 'easeInSine',
-      duration: this.cleanUpTime,
-    })
-    Anime({
-      targets: this.cloud3.nativeElement,
-      translateX: '+=' + Utils.viewWidth,
-      opacity: 0,
-      easing: 'easeInSine',
-      duration: this.cleanUpTime,
-    })
-    Anime({
-      targets: this.sunray.nativeElement,
-      scale: [1, 0],
-      easing: 'linear',
-      duration: this.cleanUpTime / 2,
-    })
-    Anime({
-      targets: [this.smokeLeft, this.smokeRight],
-      opacity: 0,
-      easing: 'linear',
-      duration: this.cleanUpTime
-    })
-    Anime({
-      targets: this.background.nativeElement,
-      translateY: '-=' + Utils.viewHeight,
-      easing: 'easeOutSine',
-      duration: this.cleanUpTime / 2,
-    })
+    this.zone.runOutsideAngular(() => {
+      this.sweep = true;
+      this.confetti.cleanUp();
+      Anime.remove(this.animated);
+      this.vfxRight.nativeElement.style.opacity = 0;
+      this.vfxLeft.nativeElement.style.opacity = 0;
+      const left = [this.trumpetLeft.nativeElement, this.popperLeft.nativeElement];
+      left.forEach(x => x.style.transformOrigin = 'left bottom');
+      const right = [this.trumpetRight.nativeElement, this.popperRight.nativeElement];
+      right.forEach(x => x.style.transformOrigin = 'right bottom');
+      Anime({
+        targets: left,
+        rotate: 45,
+        translateY: '-50%',
+        duration: this.cleanUpTime,
+      })
+      Anime({
+        targets: right,
+        rotate: -45,
+        translateY: '-50%',
+        duration: this.cleanUpTime,
+      })
+      Anime({
+        targets: this.rainbow.nativeElement,
+        opacity: 0,
+        duration: this.cleanUpTime,
+      })
+      Anime({
+        targets: [this.cloud1.nativeElement, this.cloud2.nativeElement, this.sun.nativeElement],
+        translateX: '100%',
+        easing: 'easeInSine',
+        duration: this.cleanUpTime,
+      })
+      Anime({
+        targets: this.cloud3.nativeElement,
+        translateX: '+=' + Utils.viewWidth,
+        opacity: 0,
+        easing: 'easeInSine',
+        duration: this.cleanUpTime,
+      })
+      Anime({
+        targets: this.sunray.nativeElement,
+        scale: [1, 0],
+        easing: 'linear',
+        duration: this.cleanUpTime / 2,
+      })
+      Anime({
+        targets: [this.smokeLeft, this.smokeRight],
+        opacity: 0,
+        easing: 'linear',
+        duration: this.cleanUpTime
+      })
+      Anime({
+        targets: this.background.nativeElement,
+        translateY: '-=' + Utils.viewHeight,
+        easing: 'easeOutSine',
+        duration: this.cleanUpTime / 2,
+      })
+    });
   }
 
   startAnimations() {
-    this.animatePopper(true);
-    this.animatePopper();
-    this.animateTrumpet(true);
-    this.animateTrumpet()
-    this.animateBackground();
-    this.animateSun();
-    this.animateCloud(this.cloud1.nativeElement);
-    this.animateCloud(this.cloud2.nativeElement);
-    this.animateCloud(this.cloud3.nativeElement);
-    this.animateRainbow();
+    this.zone.runOutsideAngular(() => {
+      this.animatePopper(true);
+      this.animatePopper();
+      this.animateTrumpet(true);
+      this.animateTrumpet()
+      this.animateBackground();
+      this.animateSun();
+      this.animateCloud(this.cloud1.nativeElement);
+      this.animateCloud(this.cloud2.nativeElement);
+      this.animateCloud(this.cloud3.nativeElement);
+      this.animateRainbow();
+    });
   }
 
   animateSun() {
@@ -296,17 +301,18 @@ export class GreetingBgComponent {
           loopBegin: (anim) => {
             if (this.stopAnimating) return;
             if (anim.progress < 50) {
-              VFXsWithTransform.forEach((vfx) => {
-                Anime({
-                  targets: vfx.vfx,
-                  rotate: [vfx.rotate, vfx.rotate],
-                  opacity: [0, 1],
-                  scaleX: [0, 1],
-                  duration: 100,
-                  direction: "alternate",
-                  easing: "linear"
-                });
-              })
+              Anime({
+                targets: VFXsWithTransform.map(vfx => vfx.vfx),
+                rotate: (_el: HTMLElement, index: number) => {
+                  const rotate = VFXsWithTransform[index].rotate;
+                  return [rotate, rotate];
+                },
+                opacity: [0, 1],
+                scaleX: [0, 1],
+                duration: 100,
+                direction: "alternate",
+                easing: "linear"
+              });
             }
           }
         });

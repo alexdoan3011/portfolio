@@ -19,11 +19,36 @@
   overscroll-behavior: none!important;
 }
 
-.no-scrollbar {
-  overflow: scroll;
-  -ms-overflow-style: none; /* IE and Edge */
+html, body {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
   &::-webkit-scrollbar {
-    display: none; /* Hide scrollbar for Chrome, Safari and Opera */
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+}
+
+// Hide ngx-scrollbar's custom-rendered thumb/track DOM (native scrollbar CSS
+// doesn't apply to it because it's real elements, not a UA scrollbar).
+ng-scrollbar {
+  scrollbar-y,
+  scrollbar-x,
+  scrollbars {
+    display: none !important;
+  }
+
+  // Remove ngx-scrollbar's viewport inline padding that reserves space for the
+  // custom scrollbar and shows up as a white vertical line on the right.
+  --_viewport-padding-inline-end: 0 !important;
+  --_viewport-padding-inline-start: 0 !important;
+}
+
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -46,6 +71,16 @@
   pointer-events: none;
 }
 
+// While a window is being dragged/resized, iframes must not swallow mouse
+// events or the global drag listeners stop receiving mousemove.
+body.window-editing iframe {
+  pointer-events: none;
+}
+
+body.window-editing {
+  user-select: none;
+}
+
 .interact {
   pointer-events: auto!important;
 }
@@ -56,6 +91,16 @@
 
 .black-shadow {
   box-shadow: 0 5px 0 black, -10px 15px 0px rgba(0, 0, 0, 0.05);
+}
+
+// A single moderate drop-shadow instead of three stacked large-blur ones.
+// drop-shadow is not compositor-accelerated, so each glowing particle forces a
+// main-thread re-raster every frame — blur radius and layer count dominate that
+// cost. One 12px shadow keeps the sparkle while cutting raster work by ~3x and
+// shrinking the repainted region, which is the main source of frametime spikes.
+@keyframes particle-glow {
+  0%, 100% { filter: none; }
+  50% { filter: brightness(2.2) drop-shadow(0 0 12px var(--glow-color)); }
 }
 
 .link {
@@ -144,5 +189,5 @@ a.btn {
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Ramaraja&family=Sacramento&display=swap');
-@import "~@fortawesome/fontawesome-free/css/all.css";
-@import "~balloon-css/src/balloon";
+@import "@fortawesome/fontawesome-free/css/all.css";
+@import "balloon-css/src/balloon";

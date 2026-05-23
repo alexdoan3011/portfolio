@@ -9,7 +9,6 @@ import {RouterModule} from "@angular/router";
 import {NotFoundComponent} from './not-found/not-found.component';
 import {HomeComponent} from './home/home.component';
 import {AppRoutingModule} from "./app-routing.module";
-import { BorderAnimateComponent } from './border-animate/border-animate.component';
 import { WindowComponent } from './window/window.component';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 import { ContactMeComponent } from './contact-me/contact-me.component';
@@ -29,7 +28,6 @@ import { IframeWrapperComponent } from './iframe-wrapper/iframe-wrapper.componen
     NotFoundComponent,
     GreetingBgComponent,
     HomeComponent,
-    BorderAnimateComponent,
     WindowComponent,
     ContactMeComponent,
     AvatarAnimateComponent,

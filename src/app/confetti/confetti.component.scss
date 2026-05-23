@@ -4,3 +4,20 @@
   height: 100%;
   z-index: -50
 }
+
+#particleContainer {
+  pointer-events: none;
+  contain: layout style;
+  isolation: isolate;
+
+  & > div {
+    // Promote each particle to its own compositor layer so its per-frame
+    // transform runs entirely on the GPU with no main-thread repaint. Promoting
+    // the *container* instead (the previous approach) meant every child
+    // transform repainted the shared layer — the core cause of the tumble jank.
+    // The particle count is bounded by the startup benchmark, so total layer
+    // memory stays in check even on mobile.
+    will-change: transform;
+    contain: layout style paint;
+  }
+}

@@ -2,6 +2,7 @@ import {Component, ElementRef, EventEmitter, Input, OnInit, Output} from '@angul
 import Utils from "../utils";
 
 @Component({
+  standalone: false,
   selector: 'app-navigation-card',
   templateUrl: './navigation-card.component.html',
   styleUrls: ['./navigation-card.component.scss']

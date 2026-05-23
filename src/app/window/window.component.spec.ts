@@ -22,4 +22,11 @@ describe('AboutMeComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should not render fullscreen blocker overlays while dragging', () => {
+    component.dragging = true;
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.blocker')).toBeNull();
+  });
 });

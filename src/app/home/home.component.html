@@ -1,10 +1,4 @@
 <div #disable [hidden]="!disableInteractions" class="w-100 h-100 fixed-top"></div>
-<div id="old">
-  <button routerLink="/old" id="old-btn"
-          aria-label="I'm still working ⌛&#10;on my new site ☝&#10;See my old site 👇&#10;in the meantime? 🥺"
-          data-balloon-pos="up" data-balloon-break><i
-    class="fas fa-arrow-right position-absolute top-50 start-50 translate-middle no-interact"></i></button>
-</div>
 <div class="d-flex justify-content-center no-select" #icon *ngIf="displayHint" id="icon">
   <div class="d-flex justify-content-center flex-column text-center">
     <div *ngIf="!isMobile()"> Scroll down
@@ -12,7 +6,7 @@
     <i class="fa" [class.fa-angle-up]="isMobile()" [class.fa-angle-down]="!isMobile()"></i>
   </div>
 </div>
-<ng-scrollbar #scroll [disabled]="isMobile()||maximized" id="scroll" [class.no-select]="editingWindow"
+<ng-scrollbar #scroll id="scroll" [class.no-select]="editingWindow"
               viewClass="no-scrollbar">
   <div #greetingContainer
        *ngIf="displayGreeting"
@@ -23,6 +17,11 @@
                   (doneTransforming)="setNamePos($event)" (cleanedUp)="removeGreeting()"
                   (cleaningUp)="displayHint=false"></app-greeting>
   </div>
+  <div #fullScreenContainer class="position-absolute top-0 start-0 no-interact"
+       id="fullScreenContainer"
+       [style.width]="getViewportWidth()" [style.height]="maximized?getViewportHeight():'100%'">
+    <ng-template #insertWindowHere></ng-template>
+  </div>
   <div #wrapper id="wrapper" class="d-flex flex-column"
        [style.height]="maximized?getViewportHeight():'auto'">
     <div class="d-flex flex-column" id="without-contact-me">
@@ -31,14 +30,9 @@
         </div>
         <div #introductionText id="introduction-text">{{contentJson.introduction}}</div>
       </div>
-      <app-border-animate id="intro-border" *ngIf="!isMobile()"></app-border-animate>
       <div id="contentWrapper" class="overflow-hidden">
         <div #windowContainer class="d-flex flex-column justify-content-end" id="window-container"
              [style.min-height]="isMobile()?'auto': getViewportHeight()">
-          <div #fullScreenContainer class="position-absolute top-0 start-0 no-interact"
-               [style.width]="getViewportWidth()" [style.height]="maximized?getViewportHeight():'100%'">
-            <ng-template #insertWindowHere></ng-template>
-          </div>
           <app-navigation (openApp)="openApp($event)"></app-navigation>
 <!--          <div class="position-relative w-100">-->
 <!--            <app-border-animate id="about-me-border" *ngIf="!isMobile()" color="myDarkPurple"></app-border-animate>-->

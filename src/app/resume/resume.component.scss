@@ -4,7 +4,12 @@
 }
 
 .equal-width {
-  width: 50%;
+  flex: 0 0 50%;
+  max-width: 50%;
+}
+
+.resume-section {
+  width: 100%;
 }
 
 .date {

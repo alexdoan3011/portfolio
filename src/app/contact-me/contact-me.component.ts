@@ -4,6 +4,7 @@ import {AvatarAnimateComponent} from "../avatar-animate/avatar-animate.component
 import Anime from "animejs";
 
 @Component({
+  standalone: false,
   selector: 'app-contact-me',
   templateUrl: './contact-me.component.html',
   styleUrls: ['./contact-me.component.scss']

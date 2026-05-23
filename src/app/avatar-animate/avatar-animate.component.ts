@@ -1,13 +1,35 @@
-import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, Input, NgZone, OnDestroy, OnInit} from '@angular/core';
 import Utils from "../utils";
 import Anime from "animejs";
 
+interface AvatarPart {
+  el: SVGGElement;
+  multiplierX: number;
+  multiplierY: number;
+  invert: boolean;
+  scaleX: boolean;
+  multiplierS: number;
+  // Baseline matrix parsed from the initial `transform` attribute.
+  baseA: number;
+  baseB: number;
+  baseC: number;
+  baseD: number;
+  baseX: number;
+  baseY: number;
+  // Current animated state — kept in memory so the rAF loop never has to
+  // re-read and re-parse the `transform` attribute every frame.
+  curA: number;
+  curX: number;
+  curY: number;
+}
+
 @Component({
+  standalone: false,
   selector: 'app-avatar-animate',
   templateUrl: './avatar-animate.component.html',
   styleUrls: ['./avatar-animate.component.scss']
 })
-export class AvatarAnimateComponent implements OnInit, AfterViewInit {
+export class AvatarAnimateComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() width = 0;
   @Input() shutMouth = false;
@@ -35,7 +57,14 @@ export class AvatarAnimateComponent implements OnInit, AfterViewInit {
   z3: any;
   areClosed: boolean = false;
 
-  constructor() {
+  private parts: AvatarPart[] = [];
+  private rafId = 0;
+  private blinkTimeoutId: any = 0;
+  private zsRunning = false;
+  private destroyed = false;
+  private isMobile = false;
+
+  constructor(private zone: NgZone) {
   }
 
   ngOnInit(): void {
@@ -63,33 +92,105 @@ export class AvatarAnimateComponent implements OnInit, AfterViewInit {
     this.z3 = (document.querySelectorAll('#z3')[0] as SVGGElement)!
   }
 
+  ngOnDestroy(): void {
+    this.destroyed = true;
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+    if (this.blinkTimeoutId) clearTimeout(this.blinkTimeoutId);
+  }
 
   startAnimations() {
-    this.animatePart(this.eyes, 0.08, 0.08, false, false);
-    this.animatePart(this.eyesClosed, 0.08, 0.08, false, false);
-    this.animatePart(this.leftEyebrow, 0, -0.03, true, false);
-    this.animatePart(this.rightEyebrow, 0.05, 0.05, false, false);
-    this.animatePart(this.faceDetails, 0.05, 0.05, false, false);
-    this.animatePart(this.face, 0.02, 0.05, false, false);
-    this.animatePart(this.glasses, 0.06, 0.1, false, false);
-    this.animatePart(this.nose, 0.07, 0.11, false, false);
-    this.animatePart(this.leftEar, -0.01, -0.05, false, false);
-    this.animatePart(this.rightEar, -0.01, -0.05, false, false);
-    this.animatePart(this.mouth, 0.06, 0.06, false, false);
-    this.animatePart(this.mouthClosed, 0.06, 0.08, false, false);
-    this.animatePart(this.topHair, 0.05, 0.01, false, false);
-    this.animatePart(this.topHairBack, 0.02, -0.03, false, false);
-    this.animatePart(this.leftHair, -0.02, -0.01, false, true, 0.001);
-    this.animatePart(this.rightHair, 0.17, -0.01, false, true, -0.001);
-    this.blink();
-    this.animateZs();
+    this.zone.runOutsideAngular(() => {
+      this.isMobile = Utils.isMobile;
+      this.registerPart(this.eyes, 0.08, 0.08, false, false);
+      this.registerPart(this.eyesClosed, 0.08, 0.08, false, false);
+      this.registerPart(this.leftEyebrow, 0, -0.03, true, false);
+      this.registerPart(this.rightEyebrow, 0.05, 0.05, false, false);
+      this.registerPart(this.faceDetails, 0.05, 0.05, false, false);
+      this.registerPart(this.face, 0.02, 0.05, false, false);
+      this.registerPart(this.glasses, 0.06, 0.1, false, false);
+      this.registerPart(this.nose, 0.07, 0.11, false, false);
+      this.registerPart(this.leftEar, -0.01, -0.05, false, false);
+      this.registerPart(this.rightEar, -0.01, -0.05, false, false);
+      this.registerPart(this.mouth, 0.06, 0.06, false, false);
+      this.registerPart(this.mouthClosed, 0.06, 0.08, false, false);
+      this.registerPart(this.topHair, 0.05, 0.01, false, false);
+      this.registerPart(this.topHairBack, 0.02, -0.03, false, false);
+      this.registerPart(this.leftHair, -0.02, -0.01, false, true, 0.001);
+      this.registerPart(this.rightHair, 0.17, -0.01, false, true, -0.001);
+      this.startLoop();
+      this.blink();
+      this.animateZs();
+    });
+  }
+
+  private registerPart(el: SVGGElement, multiplierX: number, multiplierY: number, invert: boolean, scaleX: boolean, multiplierS: number = 0) {
+    if (!el) return;
+    const base = this.parseTransform(el);
+    this.parts.push({
+      el,
+      multiplierX,
+      multiplierY,
+      invert,
+      scaleX,
+      multiplierS,
+      baseA: base.a,
+      baseB: base.b,
+      baseC: base.c,
+      baseD: base.d,
+      baseX: base.x,
+      baseY: base.y,
+      curA: base.a,
+      curX: base.x,
+      curY: base.y,
+    });
+  }
+
+  private startLoop() {
+    if (this.rafId || this.destroyed) return;
+    const tick = () => {
+      this.rafId = 0;
+      if (this.destroyed) return;
+      if (!this.pauseAnimation) {
+        this.updateParts();
+      }
+      this.rafId = window.requestAnimationFrame(tick);
+    };
+    this.rafId = window.requestAnimationFrame(tick);
+  }
+
+  private updateParts() {
+    const mobileMultiplier = this.isMobile ? 1.3 : 1;
+    const mouseX = (Utils.mouseX - this.left) / Utils.viewWidth * 100;
+    const rawMouseY = Utils.mouseY - this.top;
+    const mouseY = (rawMouseY > 1000 ? 1000 : rawMouseY) / Utils.viewHeight * 100;
+
+    for (let i = 0; i < this.parts.length; i++) {
+      const p = this.parts[i];
+      const drivingX = p.invert ? mouseY : mouseX;
+      const drivingY = p.invert ? mouseX : mouseY;
+      const targetX = p.baseX + drivingX * p.multiplierX * mobileMultiplier;
+      const targetY = p.baseY + drivingY * p.multiplierY * mobileMultiplier;
+      p.curX += (targetX - p.curX) / 10;
+      p.curY += (targetY - p.curY) / 10;
+      if (p.scaleX && p.multiplierS) {
+        const targetA = p.baseA + mouseX * p.multiplierS;
+        p.curA += (targetA - p.curA) / 10;
+      }
+      p.el.setAttribute(
+        'transform',
+        'matrix(' + p.curA + ',' + p.baseB + ',' + p.baseC + ',' + p.baseD + ',' + p.curX + ',' + p.curY + ')'
+      );
+    }
   }
 
   animateZs() {
+    if (this.destroyed || this.zsRunning) return;
     if (!this.pauseAnimation) {
+      // Avatar is awake — no Zs while alert. Re-check next frame.
       window.requestAnimationFrame(() => this.animateZs());
       return;
     }
+    this.zsRunning = true;
     Anime({
       targets: this.z3,
       keyframes: [
@@ -114,7 +215,10 @@ export class AvatarAnimateComponent implements OnInit, AfterViewInit {
           ],
           delay: 500,
           easing: "linear",
-          complete: () => this.animateZs()
+          complete: () => {
+            this.zsRunning = false;
+            if (!this.destroyed) this.animateZs();
+          }
         })
       })
     });
@@ -153,36 +257,15 @@ export class AvatarAnimateComponent implements OnInit, AfterViewInit {
   }
 
   blink() {
-    window.setTimeout(() => {
+    if (this.destroyed) return;
+    this.blinkTimeoutId = window.setTimeout(() => {
+      this.blinkTimeoutId = 0;
+      if (this.destroyed) return;
       if (!this.pauseAnimation) {
         this.blinkNow();
       }
       this.blink();
     }, Math.random() * 10000);
-  }
-
-  animatePart(part: any, multiplierX: number, multiplierY: number, invert: boolean, scaleX: boolean, multiplierS?: number, originalTransform?: any, newTransform?: any) {
-    window.requestAnimationFrame(() => {
-      if (!this.pauseAnimation) {
-        if (!originalTransform) {
-          originalTransform = this.getTransform(part);
-        }
-        newTransform = this.getTransform(part);
-        const mobileMultiplier = Utils.isMobile ? 1.3 : 1;
-        if (invert) {
-          newTransform.x += (originalTransform.x + this.getMouseY() * multiplierX * mobileMultiplier - newTransform.x) / 10;
-          newTransform.y += (originalTransform.y + this.getMouseX() * multiplierY * mobileMultiplier - newTransform.y) / 10;
-        } else {
-          newTransform.x += (originalTransform.x + this.getMouseX() * multiplierX * mobileMultiplier - newTransform.x) / 10;
-          newTransform.y += (originalTransform.y + this.getMouseY() * multiplierY * mobileMultiplier - newTransform.y) / 10;
-        }
-        if (scaleX && multiplierS) {
-          newTransform.a += (originalTransform.a + this.getMouseX() * multiplierS - newTransform.a) / 10;
-        }
-        part.setAttribute('transform', 'matrix(' + newTransform.a + ',' + newTransform.b + ',' + newTransform.c + ',' + newTransform.d + ',' + newTransform.x + ',' + newTransform.y + ')');
-      }
-      this.animatePart(part, multiplierX, multiplierY, invert, scaleX, multiplierS, originalTransform, newTransform);
-    })
   }
 
   getMouseX() {
@@ -193,33 +276,27 @@ export class AvatarAnimateComponent implements OnInit, AfterViewInit {
     return ((Utils.mouseY - this.top) > 1000 ? 1000 : (Utils.mouseY - this.top)) / Utils.viewHeight * 100;
   }
 
-  getTransform(part: any) {
+  private parseTransform(part: SVGGElement) {
     const transform = part.getAttribute('transform');
-    if (!transform) return {
-      a: 1,
-      b: 0,
-      c: 0,
-      d: 1,
-      x: 0,
-      y: 0
-    }
+    if (!transform) return {a: 1, b: 0, c: 0, d: 1, x: 0, y: 0};
+    const open = transform.indexOf('(');
+    const close = transform.indexOf(')');
+    if (open < 0 || close < 0) return {a: 1, b: 0, c: 0, d: 1, x: 0, y: 0};
+    const parts = transform.slice(open + 1, close).split(',');
     if (transform[0].toLowerCase() === 'm') {
       return {
-        a: Number(transform.split(',')[0].split('(')[1]),
-        b: Number(transform.split(',')[1]),
-        c: Number(transform.split(',')[2]),
-        d: Number(transform.split(',')[3]),
-        x: Number(transform.split(',')[4]),
-        y: Number(transform.split(',')[5].slice(0, -1))
+        a: Number(parts[0]),
+        b: Number(parts[1]),
+        c: Number(parts[2]),
+        d: Number(parts[3]),
+        x: Number(parts[4]),
+        y: Number(parts[5]),
       };
     }
-    return {
-      a: 1,
-      b: 0,
-      c: 0,
-      d: 1,
-      x: Number(transform.split(',')[0].split('(')[1]),
-      y: Number(transform.split(',')[1].slice(0, -1))
-    };
+    return {a: 1, b: 0, c: 0, d: 1, x: Number(parts[0]), y: Number(parts[1])};
+  }
+
+  getTransform(part: any) {
+    return this.parseTransform(part);
   }
 }

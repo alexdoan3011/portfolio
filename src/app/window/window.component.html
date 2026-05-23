@@ -1,12 +1,5 @@
 <div #wrapper class="interact">
   <div id="bg-hider" *ngIf="maximized" class="no-interact bg-dark w-100 h-100 position-absolute top-0 start-0" style="z-index: 1"></div>
-  <div class="blocker" id="1" style="cursor: move" *ngIf="dragging&&!touched" (mousemove)="editPosition($event)"
-       (mouseleave)="editPosition($event)" (window:mouseup)="stopEditing($event)"></div>
-  <div class="blocker" id="2"
-       [style.cursor]="resizingX?(resizingY?(resizeLeft?(resizeTop?'nwse-resize':'nesw-resize'):(resizeTop?'nesw-resize':'nwse-resize')):'ew-resize'):'ns-resize'"
-       *ngIf="resizingX||resizingY"
-       (mousemove)="editSize($event)" (mouseleave)="editSize($event)" (window:mouseup)="stopEditing($event)"></div>
-  <div class="blocker" id="3" *ngIf="touchDelay"></div>
   <div #window id="window"
        (mousedown)="onInteracted()"
        (touchstart)="onInteracted()"
